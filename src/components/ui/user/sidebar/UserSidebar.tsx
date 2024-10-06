@@ -6,6 +6,9 @@ import { MdOutlineDashboard } from "react-icons/md";
 import styles from "./Style.module.css";
 import { usePathname } from "next/navigation";
 import { FaBars } from "react-icons/fa";
+import { IoCreate } from "react-icons/io5";
+import Profile from "../../Profile";
+import { BiHome } from "react-icons/bi";
 
 const UserSidebar: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -63,6 +66,10 @@ const UserSidebar: React.FC = () => {
             </button>
           </div>
 
+          <div>
+            <Profile />
+          </div>
+
           {/* Sidebar Links */}
           <p className="px-3 my-2">Main</p>
           <div>
@@ -77,6 +84,33 @@ const UserSidebar: React.FC = () => {
             >
               <MdOutlineDashboard size={18} />
               <span className="ml-4">Dashboard</span>
+            </Link>
+          </div>
+          <div>
+            <Link
+              href="/user/post"
+              passHref
+              className={`flex items-center py-3 px-4 font-semibold ${
+                pathname === "/user/post"
+                  ? "bg-[#dfeaff]"
+                  : "text-gray-600 hover:bg-[#f5f8fe]"
+              }`}
+            >
+              <IoCreate size={18} />
+              <span className="ml-4">Create Post</span>
+            </Link>
+          </div>
+          {/* Sidebar Links */}
+          <p className="px-3 my-2">Others</p>
+          <div>
+            <Link
+              href="/"
+              passHref
+              className={`flex items-center py-3 px-4 font-semibold text-gray-600 hover:bg-[#f5f8fe]"
+              }`}
+            >
+              <BiHome size={18} />
+              <span className="ml-4">Home</span>
             </Link>
           </div>
         </div>
