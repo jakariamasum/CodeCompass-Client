@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { useState } from "react";
@@ -7,21 +6,27 @@ import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
 
-type LoginFormData = {
+type RegisterFormData = {
+  name: string;
   email: string;
   password: string;
+  confirmPassword: string;
 };
 
-const Login = () => {
+const Register = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>();
+    watch,
+  } = useForm<RegisterFormData>();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const onSubmit = (data: LoginFormData) => {
+  const password = watch("password");
+
+  const onSubmit = (data: RegisterFormData) => {
     setLoading(true);
     setTimeout(() => {
       console.log(data);
@@ -38,16 +43,28 @@ const Login = () => {
         className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full"
       >
         <h2 className="text-2xl font-bold text-center mb-6">
-          Login to Your Account
+          Create Your Account
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium">Name</label>
+            <input
+              {...register("name", { required: "Name is required" })}
+              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-[#009CA6] focus:border-[#009CA6]"
+              placeholder="John Doe"
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name.message}</p>
+            )}
+          </div>
+
           <div>
             <label className="block text-sm font-medium">Email</label>
             <input
               {...register("email", { required: "Email is required" })}
               className="w-full border border-gray-300 rounded-lg p-2"
-              placeholder="Enter your email"
+              placeholder="john@doe.com"
             />
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email.message}</p>
@@ -60,7 +77,7 @@ const Login = () => {
               {...register("password", { required: "Password is required" })}
               type={showPassword ? "text" : "password"}
               className="w-full border border-gray-300 rounded-lg p-2"
-              placeholder="Enter your password"
+              placeholder="******"
             />
             {errors.password && (
               <p className="text-red-500 text-sm">{errors.password.message}</p>
@@ -73,10 +90,31 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="flex justify-between items-center">
-            <Link href="#" className="text-blue-500 hover:underline text-sm">
-              Forgot Password?
-            </Link>
+          <div className="relative">
+            <label className="block text-sm font-medium">
+              Confirm Password
+            </label>
+            <input
+              {...register("confirmPassword", {
+                required: "Confirm password is required",
+                validate: (value) =>
+                  value === password || "Passwords do not match",
+              })}
+              type={showConfirmPassword ? "text" : "password"}
+              className="w-full border border-gray-300 rounded-lg p-2"
+              placeholder="******"
+            />
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+            <div
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-700 cursor-pointer"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </div>
           </div>
 
           <motion.button
@@ -84,19 +122,19 @@ const Login = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={`w-full py-2 rounded-lg text-white ${
-              loading ? "bg-gray-400 cursor-not-allowed" : "bg-teal-500"
+              loading ? "bg-gray-400 cursor-not-allowed" : "bg-[#009CA6]"
             }`}
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Registering..." : "Register"}
           </motion.button>
         </form>
 
         <div className="mt-4 text-center">
           <p className="text-sm">
-            Don't have an account?{" "}
-            <Link href="/register" className="text-blue-500 hover:underline">
-              Sign up
+            Already have an account?{" "}
+            <Link href="/login" className="text-blue-500 hover:underline">
+              Login
             </Link>
           </p>
         </div>
@@ -105,4 +143,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
