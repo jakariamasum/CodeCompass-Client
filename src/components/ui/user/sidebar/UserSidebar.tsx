@@ -9,6 +9,7 @@ import { FaBars } from "react-icons/fa";
 import { IoCreate } from "react-icons/io5";
 import Profile from "../../Profile";
 import { BiHome } from "react-icons/bi";
+import { BsStack } from "react-icons/bs";
 
 const UserSidebar: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -92,6 +93,20 @@ const UserSidebar: React.FC = () => {
               passHref
               className={`flex items-center py-3 px-4 font-semibold ${
                 pathname === "/user/post"
+                  ? "bg-[#dfeaff]"
+                  : "text-gray-600 hover:bg-[#f5f8fe]"
+              }`}
+            >
+              <BsStack size={18} />
+              <span className="ml-4">My Post</span>
+            </Link>
+          </div>
+          <div>
+            <Link
+              href="/user/create-post"
+              passHref
+              className={`flex items-center py-3 px-4 font-semibold ${
+                pathname === "/user/create-post"
                   ? "bg-[#dfeaff]"
                   : "text-gray-600 hover:bg-[#f5f8fe]"
               }`}

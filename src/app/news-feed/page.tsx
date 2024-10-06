@@ -4,7 +4,9 @@ import { useForm } from "react-hook-form";
 import { FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
+// Static data for news posts
 const staticPosts = [
   {
     id: 1,
@@ -48,6 +50,7 @@ const NewsFeed = () => {
   const [filteredPosts, setFilteredPosts] = useState(staticPosts);
   const { register, handleSubmit } = useForm();
 
+  // Handle search functionality
   const handleSearch = ({ search }) => {
     if (!search) {
       setFilteredPosts(staticPosts);
@@ -65,7 +68,7 @@ const NewsFeed = () => {
         <h1 className="text-4xl font-extrabold text-gray-800">
           Tech Tips & Tutorials
         </h1>
-        <button className="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700">
+        <button className="bg-[#009CA6] text-white px-6 py-2 rounded-full hover:bg-indigo-700">
           Create Post
         </button>
       </div>
@@ -76,7 +79,7 @@ const NewsFeed = () => {
             <input
               type="text"
               placeholder="Search tech tips..."
-              className="w-full p-3 rounded-full border focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full p-3 rounded-full border focus:outline-none focus:ring-2 focus:ring-[#009CA6]"
               {...register("search")}
             />
             <button
@@ -96,7 +99,7 @@ const NewsFeed = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: idx * 0.1 }}
           className={`flex flex-col md:flex-row md:even:flex-row-reverse items-center mb-10 bg-white rounded-lg shadow-lg overflow-hidden ${
-            idx % 2 == 0 ? "border-t-4 border-indigo-600" : ""
+            idx % 2 == 0 ? "border-t-4 border-[#009CA6]" : ""
           }`}
         >
           <div className="md:w-1/3">
@@ -113,15 +116,19 @@ const NewsFeed = () => {
             <h2 className="text-2xl font-semibold mb-2 text-gray-800">
               {post.title}
             </h2>
-            <p className="text-indigo-600 mb-4">{post.category}</p>
+            <p className="text-[#009CA6] mb-4">{post.category}</p>
             <p className="text-gray-600 leading-relaxed">{post.excerpt}</p>
-            <button className="mt-4 text-indigo-600 hover:underline">
-              Read More
-            </button>
+            <Link href={"/posts/d"}>
+              {" "}
+              <button className="mt-4 text-[#009CA6] hover:underline">
+                Read More
+              </button>
+            </Link>
           </div>
         </motion.div>
       ))}
 
+      {/* No posts found */}
       {filteredPosts.length === 0 && (
         <div className="text-center py-8 text-gray-500">
           <p>No posts found.</p>

@@ -1,116 +1,156 @@
 "use client";
-
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { FaTimes } from "react-icons/fa";
-import Content from "@/components/ui/Content";
+import { FaTrash, FaEdit } from "react-icons/fa";
 
-type PostFormData = {
-  title: string;
-  content: string;
-  category: string;
-  premium: boolean;
-};
+const initialPosts = [
+  {
+    id: 1,
+    title: "Mastering React Hooks",
+    category: "Web",
+    views: 500,
+    upvotes: 120,
+  },
+  {
+    id: 2,
+    title: "Getting Started with Next.js",
+    category: "Web",
+    views: 750,
+    upvotes: 200,
+  },
+  {
+    id: 3,
+    title: "Understanding JavaScript Promises",
+    category: "Software Engineering",
+    views: 300,
+    upvotes: 90,
+  },
+  {
+    id: 4,
+    title: "Exploring AI in Everyday Applications",
+    category: "AI",
+    views: 400,
+    upvotes: 110,
+  },
+  {
+    id: 5,
+    title: "A Guide to CSS Flexbox",
+    category: "Web",
+    views: 650,
+    upvotes: 160,
+  },
+];
 
-const categories = ["Web", "Software Engineering", "AI", "Mobile", "DevOps"];
+const MyPosts = () => {
+  const [posts, setPosts] = useState(initialPosts);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postsPerPage] = useState(2);
 
-const Post = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [editorContent, setEditorContent] = useState("");
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<PostFormData>();
+  const handleDelete = (id: number) => {
+    const updatedPosts = posts.filter((post) => post.id !== id);
+    setPosts(updatedPosts);
+  };
 
-  const onSubmit = (data: PostFormData) => {
-    data.content = editorContent;
-    console.log(data);
-    reset();
-    setShowModal(false);
+  const filteredPosts = posts.filter((post) =>
+    post.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
   };
 
   return (
-    <>
-      <button
-        onClick={() => setShowModal(true)}
-        className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-      >
-        Create Post
-      </button>
+    <div className="px-2 mx-auto p-6">
+      <h2 className="text-3xl font-bold mb-6">My Posts</h2>
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">
-          <div className="bg-white w-full max-w-2xl p-6 rounded-lg shadow-lg relative">
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-red-500 text-2xl"
-            >
-              <FaTimes />
-            </button>
+      <div className="mb-4 flex justify-between items-center">
+        <input
+          type="text"
+          placeholder="Search posts..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-gray-300 rounded-lg p-2 w-full md:w-1/3"
+        />
+      </div>
 
-            <h2 className="text-2xl mb-4 font-semibold">Create New Post</h2>
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <table className="min-w-full">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="py-3 px-4 text-left">Title</th>
+              <th className="py-3 px-4 text-left">Category</th>
+              <th className="py-3 px-4 text-left">Views</th>
+              <th className="py-3 px-4 text-left">Upvotes</th>
+              <th className="py-3 px-4 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentPosts.length > 0 ? (
+              currentPosts.map((post) => (
+                <tr key={post.id} className="border-b">
+                  <td className="py-2 px-4">{post.title}</td>
+                  <td className="py-2 px-4">{post.category}</td>
+                  <td className="py-2 px-4">{post.views}</td>
+                  <td className="py-2 px-4">{post.upvotes}</td>
+                  <td className="py-2 px-4 flex space-x-2">
+                    <button className="text-blue-600 hover:underline">
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="text-red-600 hover:underline"
+                      onClick={() => handleDelete(post.id)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} className="py-2 px-4 text-center">
+                  No posts found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium">Post Title</label>
-                <input
-                  {...register("title", { required: true })}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  placeholder="Enter post title"
-                />
-                {errors.title && (
-                  <p className="text-red-500 text-sm">Title is required</p>
-                )}
-              </div>
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === 1 ? "bg-gray-300" : "bg-blue-600 text-white"
+          } `}
+        >
+          Previous
+        </button>
 
-              <div>
-                <label className="block text-sm font-medium">Content</label>
-                <Content value={editorContent} onChange={setEditorContent} />
-              </div>
+        <span className="text-lg">
+          Page {currentPage} of {totalPages}
+        </span>
 
-              <div>
-                <label className="block text-sm font-medium">Category</label>
-                <select
-                  {...register("category", { required: true })}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                >
-                  <option value="">Select Category</option>
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-                {errors.category && (
-                  <p className="text-red-500 text-sm">Category is required</p>
-                )}
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  {...register("premium")}
-                  type="checkbox"
-                  className="mr-2"
-                />
-                <label>
-                  Tag this post as Premium (only accessible to verified users)
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                className="bg-green-500 text-white px-4 py-2 rounded-lg"
-              >
-                Submit Post
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-    </>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === totalPages
+              ? "bg-gray-300"
+              : "bg-blue-600 text-white"
+          }`}
+        >
+          Next
+        </button>
+      </div>
+    </div>
   );
 };
 
-export default Post;
+export default MyPosts;
