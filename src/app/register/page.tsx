@@ -5,12 +5,15 @@ import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
+import { useUserRegistration } from "@/hooks/auth.hook";
 
 type RegisterFormData = {
-  name: string;
+  fname: string;
+  lname: string;
   email: string;
   password: string;
   confirmPassword: string;
+  profilePic: string;
 };
 
 const Register = () => {
@@ -25,15 +28,20 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const password = watch("password");
+  const { mutate: handleUserRegistration, isPending } = useUserRegistration();
 
   const onSubmit = (data: RegisterFormData) => {
+    data.profilePic =
+      "https://i.ibb.co.com/bdfpZcG/blank-profile-picture-973460-960-720.png";
     setLoading(true);
     setTimeout(() => {
-      console.log(data);
+      handleUserRegistration(data);
       setLoading(false);
     }, 2000);
   };
-
+  if (isPending) {
+    <>Loading.....</>;
+  }
   return (
     <div className="flex items-center justify-center h-screen text-black">
       <motion.div
@@ -48,14 +56,25 @@ const Register = () => {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium">Name</label>
+            <label className="block text-sm font-medium">First Name</label>
             <input
-              {...register("name", { required: "Name is required" })}
+              {...register("fname", { required: "First Name is required" })}
               className="w-full border border-gray-300 rounded-lg p-2 focus:ring-[#009CA6] focus:border-[#009CA6]"
-              placeholder="John Doe"
+              placeholder="John"
             />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name.message}</p>
+            {errors.fname && (
+              <p className="text-red-500 text-sm">{errors.fname.message}</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Last Name</label>
+            <input
+              {...register("lname", { required: "Last Name is required" })}
+              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-[#009CA6] focus:border-[#009CA6]"
+              placeholder="Doe"
+            />
+            {errors.lname && (
+              <p className="text-red-500 text-sm">{errors.lname.message}</p>
             )}
           </div>
 

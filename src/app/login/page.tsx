@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
+import { useUserLogin } from "@/hooks/auth.hook";
 
 type LoginFormData = {
   email: string;
@@ -20,14 +21,19 @@ const Login = () => {
   } = useForm<LoginFormData>();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { mutate: handleUserLogin, isPending } = useUserLogin();
 
   const onSubmit = (data: LoginFormData) => {
     setLoading(true);
     setTimeout(() => {
-      console.log(data);
+      handleUserLogin(data);
       setLoading(false);
     }, 2000);
   };
+
+  if (isPending) {
+    <>Loading...</>;
+  }
 
   return (
     <div className="flex items-center justify-center h-screen text-black">
