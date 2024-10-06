@@ -2,10 +2,11 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { IoIosCloseCircle } from "react-icons/io";
-import { MdOutlineDashboard } from "react-icons/md";
+import { MdOutlineDashboard, MdPayment } from "react-icons/md";
 import styles from "./Style.module.css";
 import { usePathname } from "next/navigation";
-import { FaBars, FaUsers } from "react-icons/fa";
+import { FaBars, FaUsers, FaUserShield } from "react-icons/fa";
+import { BsStack } from "react-icons/bs";
 
 const AdminSidebar: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -91,6 +92,34 @@ const AdminSidebar: React.FC = () => {
             >
               <FaUsers size={18} />
               <span className="ml-4">Users</span>
+            </Link>
+          </div>
+          <div>
+            <Link
+              href="/admin/posts"
+              passHref
+              className={`flex items-center py-3 px-4 font-semibold ${
+                pathname === "/admin/posts"
+                  ? "bg-[#dfeaff]"
+                  : "text-gray-600 hover:bg-[#f5f8fe]"
+              }`}
+            >
+              <BsStack size={18} />
+              <span className="ml-4">Posts</span>
+            </Link>
+          </div>
+          <div>
+            <Link
+              href="/admin/payments"
+              passHref
+              className={`flex items-center py-3 px-4 font-semibold ${
+                pathname === "/admin/payments"
+                  ? "bg-[#dfeaff]"
+                  : "text-gray-600 hover:bg-[#f5f8fe]"
+              }`}
+            >
+              <MdPayment size={18} />
+              <span className="ml-4">Payments</span>
             </Link>
           </div>
         </div>
