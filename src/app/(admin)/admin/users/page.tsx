@@ -1,67 +1,84 @@
 "use client";
-import { useState } from "react";
-
-const staticUserData = [
-  { id: 1, name: "John Doe", email: "john@example.com", status: "Active" },
-  { id: 2, name: "Jane Smith", email: "jane@example.com", status: "Blocked" },
-  { id: 3, name: "Sam Wilson", email: "sam@example.com", status: "Active" },
-];
+import { useGetUsers, useUserDelete, useUserUpdate } from "@/hooks/user.hook";
+import { IUser } from "@/types";
+import { BiBlock, BiTrash } from "react-icons/bi";
+import { FcApprove } from "react-icons/fc";
 
 const UserManagement = () => {
-  const [users, setUsers] = useState(staticUserData);
-
-  const toggleBlock = (id: number) => {
-    const updatedUsers = users.map((user) =>
-      user.id === id
-        ? { ...user, status: user.status === "Active" ? "Blocked" : "Active" }
-        : user
-    );
-    setUsers(updatedUsers);
-  };
-
-  const deleteUser = (id: number) => {
-    const updatedUsers = users.filter((user) => user.id !== id);
-    setUsers(updatedUsers);
-  };
+  const { data: users, refetch: userRefetch } = useGetUsers();
+  const { mutate: handleUserUpdate } = useUserUpdate(userRefetch);
+  const { mutate: handleUserDelete } = useUserDelete(userRefetch);
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold mb-4">User Management</h2>
-      <table className="w-full table-auto border-collapse">
-        <thead>
-          <tr>
-            <th className="border p-2">Name</th>
-            <th className="border p-2">Email</th>
-            <th className="border p-2">Status</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td className="border p-2">{user.name}</td>
-              <td className="border p-2">{user.email}</td>
-              <td className="border p-2">{user.status}</td>
-              <td className="border p-2 flex space-x-2">
-                <button
-                  className={`${
-                    user.status === "Active" ? "bg-red-500" : "bg-green-500"
-                  } text-white px-4 py-1 rounded`}
-                  onClick={() => toggleBlock(user.id)}
-                >
-                  {user.status === "Active" ? "Block" : "Unblock"}
-                </button>
-                <button
-                  className="bg-gray-500 text-white px-4 py-1 rounded"
-                  onClick={() => deleteUser(user.id)}
-                >
-                  Delete
-                </button>
-              </td>
+    <div className="bg-white p-4 rounded shadow mb-5">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 table-auto">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Role
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {users?.map((user: IUser) => (
+              <tr key={user?._id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <span>{user?.fname} </span>
+                  {user?.lname}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {user?.email}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {user?.role}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {user?.active ? "Active" : "In-active"}
+                </td>
+                <td className="px-6 py-4  whitespace-nowrap text-left text-sm font-medium">
+                  {user?.active ? (
+                    <button
+                      onClick={() => handleUserUpdate(user._id)}
+                      className="text-indigo-600 hover:text-indigo-900 mr-4"
+                      aria-label={`Edit ${user?.fname}`}
+                    >
+                      <BiBlock className="h-5 w-5" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleUserUpdate(user._id)}
+                      className="text-indigo-600 hover:text-indigo-900 mr-4"
+                      aria-label={`Edit ${user?.fname}`}
+                    >
+                      <FcApprove className="h-5 w-5" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleUserDelete(user._id)}
+                    className="text-red-600 hover:text-red-900"
+                    aria-label={`Delete ${user?.fname}`}
+                  >
+                    <BiTrash className="h-5 w-5" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -4,6 +4,7 @@ export interface IUser {
   lname: string;
   role: string;
   email: string;
+  active: string;
   profilePic?: string;
   createdAt?: string;
   updatedAt?: string;
