@@ -1,49 +1,34 @@
+"use client";
+
 import axios from "axios";
-import { cookies } from "next/headers";
-
 import envConfig from "@/config/envConfig";
-import { getNewAccessToken } from "@/services/authService";
 
-const axiosInstance = axios.create({
-  baseURL: envConfig.baseApi,
-});
+const createAxiosInstance = () => {
+  const instance = axios.create({
+    baseURL: envConfig.baseApi,
+  });
 
-axiosInstance.interceptors.request.use(
-  function (config) {
-    const cookieStore = cookies();
-    const accessToken = cookieStore.get("accessToken")?.value;
+  instance.interceptors.request.use(
+    function (config) {
+      const accessToken = document.cookie.replace(
+        /(?:(?:^|.*;\s*)accessToken\s*\=\s*([^;]*).*$)|^.*$/,
+        "$1"
+      );
 
-    if (accessToken) {
-      config.headers.Authorization = accessToken;
-    }
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
 
-    return config;
-  },
-  function (error) {
-    return Promise.reject(error);
-  }
-);
-
-axiosInstance.interceptors.response.use(
-  function (response) {
-    return response;
-  },
-  async function (error) {
-    const config = error.config;
-
-    if (error?.response?.status === 401 && !config?.sent) {
-      config.sent = true;
-      const res = await getNewAccessToken();
-      const accessToken = res.data.accessToken;
-
-      config.headers["Authorization"] = accessToken;
-      cookies().set("accessToken", accessToken);
-
-      return axiosInstance(config);
-    } else {
+      return config;
+    },
+    function (error) {
       return Promise.reject(error);
     }
-  }
-);
+  );
+
+  return instance;
+};
+
+const axiosInstance = createAxiosInstance();
 
 export default axiosInstance;

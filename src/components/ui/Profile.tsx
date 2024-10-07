@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
@@ -21,9 +22,7 @@ const Profile = () => {
     },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-  };
+  const handleLogout = () => {};
 
   return (
     <div className="border-b-2 py-2">

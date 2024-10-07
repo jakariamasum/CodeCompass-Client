@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/services/authService";
+import { getCurrentUser } from "../..";
 import { IUser } from "@/types";
 import {
   createContext,

@@ -9,3 +9,15 @@ export interface IUser {
   updatedAt?: string;
   __v?: number;
 }
+
+export interface IPost {
+  _id: string;
+  user: string;
+  title: string;
+  content: string;
+  category: string;
+  isPremium: boolean;
+  tags: string[];
+  likes: number;
+  dislikes: number;
+}
