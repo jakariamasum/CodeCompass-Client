@@ -2,6 +2,7 @@ import {
   createPost,
   deletePost,
   getAllPost,
+  getUserPost,
   updatePost,
 } from "@/services/postServices";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -57,5 +58,12 @@ export const useGetPosts = () => {
   return useQuery({
     queryKey: ["GET_POSTS"],
     queryFn: async () => await getAllPost(),
+  });
+};
+export const useUserPosts = (id: string) => {
+  return useQuery({
+    queryKey: ["GET_USER_POSTS", id],
+    queryFn: async () => await getUserPost(id),
+    enabled: !!id,
   });
 };

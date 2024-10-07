@@ -5,6 +5,9 @@ export interface IUser {
   role: string;
   email: string;
   active: string;
+  verified: boolean;
+  following: number[];
+  followers: number[];
   profilePic?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -22,4 +25,6 @@ export interface IPost {
   tags: string[];
   likes: number;
   dislikes: number;
+  createdAt?: string;
+  updatedAt?: string;
 }

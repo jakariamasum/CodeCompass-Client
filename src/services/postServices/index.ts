@@ -22,6 +22,14 @@ export const getAllPost = async () => {
     throw new Error(error.message);
   }
 };
+export const getUserPost = async (id: string) => {
+  try {
+    const { data } = await axiosInstance.get(`/posts?user=${id}`);
+    return data.data;
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
 
 export const updatePost = async (id: string, postData: FieldValues) => {
   try {
