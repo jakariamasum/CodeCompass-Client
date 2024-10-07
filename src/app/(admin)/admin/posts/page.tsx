@@ -1,88 +1,108 @@
 "use client";
 import { useState } from "react";
+import { IPost } from "@/types";
+import {
+  useGetPosts,
+  usePostCreation,
+  usePostDelete,
+  usePostUpdate,
+} from "@/hooks/post.hook";
+import { PostList } from "@/components/ui/lists/posts.list";
+import { PostModal } from "@/components/ui/modals/post.create";
+import PostEditModal from "@/components/ui/modals/post.edit";
 
-const staticPosts = [
-  { id: 1, title: "Post 1", author: "John Doe", status: "Published" },
-  { id: 2, title: "Post 2", author: "Jane Smith", status: "Draft" },
-];
+const categories = ["Web", "Software Engineering", "AI", "Mobile", "DevOps"];
 
-const PostManagement = () => {
-  const [posts, setPosts] = useState(staticPosts);
-  const [editingPost, setEditingPost] = useState(null);
+const Post = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setEditShowModal] = useState(false);
+  const [editorContent, setEditorContent] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postsPerPage] = useState(5);
+  const [selectedPost, setSelectedPost] = useState<IPost | null>(null);
 
-  const deletePost = (id: number) => {
-    const updatedPosts = posts.filter((post) => post.id !== id);
-    setPosts(updatedPosts);
-  };
+  const { data: posts, refetch: postRefetch } = useGetPosts();
+  const { mutate: handlePostCreate } = usePostCreation(postRefetch);
+  const { mutate: handlePostUpdate } = usePostUpdate(postRefetch);
+  const { mutate: handlePostDelete } = usePostDelete(postRefetch);
 
-  const startEdit = (post: any) => {
-    setEditingPost(post);
-  };
-
-  const savePost = (post: any) => {
-    const updatedPosts = posts.map((p) => (p.id === post.id ? post : p));
-    setPosts(updatedPosts);
-    setEditingPost(null);
+  const handleEdit = (post: IPost) => {
+    setSelectedPost(post);
+    setEditShowModal(true);
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold mb-4">Post Management</h2>
-      <table className="w-full table-auto border-collapse">
-        <thead>
-          <tr>
-            <th className="border p-2">Title</th>
-            <th className="border p-2">Author</th>
-            <th className="border p-2">Status</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {posts.map((post) => (
-            <tr key={post.id}>
-              <td className="border p-2">{post.title}</td>
-              <td className="border p-2">{post.author}</td>
-              <td className="border p-2">{post.status}</td>
-              <td className="border p-2 flex space-x-2">
-                <button
-                  className="bg-blue-500 text-white px-4 py-1 rounded"
-                  onClick={() => startEdit(post)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="bg-gray-500 text-white px-4 py-1 rounded"
-                  onClick={() => deletePost(post.id)}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
+    <div className="container mx-auto p-6">
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by title..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-gray-300 rounded-lg p-2"
+        />
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="border border-gray-300 rounded-lg p-2 ml-2"
+        >
+          <option value="">All Categories</option>
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
           ))}
-        </tbody>
-      </table>
+        </select>
+      </div>
 
-      {editingPost && (
-        <div className="mt-4">
-          <h3 className="text-xl font-semibold">Edit Post</h3>
-          <input
-            type="text"
-            value={editingPost.title}
-            onChange={(e) =>
-              setEditingPost({ ...editingPost, title: e.target.value })
-            }
-            className="w-full border p-2 mb-2"
-          />
-          <button
-            className="bg-green-500 text-white px-4 py-2 rounded"
-            onClick={() => savePost(editingPost)}
-          >
-            Save Post
-          </button>
-        </div>
-      )}
+      <PostList
+        posts={posts || []}
+        searchTerm={searchTerm}
+        selectedCategory={selectedCategory}
+        currentPage={currentPage}
+        postsPerPage={postsPerPage}
+        onEdit={handleEdit}
+        onDelete={handlePostDelete}
+      />
+
+      <div className="mt-4">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage(currentPage - 1)}
+          className="bg-gray-300 px-4 py-2 rounded-lg mr-2"
+        >
+          Previous
+        </button>
+        <button
+          disabled={false}
+          onClick={() => setCurrentPage(currentPage + 1)}
+          className="bg-gray-300 px-4 py-2 rounded-lg"
+        >
+          Next
+        </button>
+      </div>
+
+      <PostModal
+        showModal={showModal}
+        setShowModal={setShowModal}
+        editorContent={editorContent}
+        setEditorContent={setEditorContent}
+        handlePostCreate={handlePostCreate}
+        categories={categories}
+      />
+      <PostEditModal
+        showModal={showEditModal}
+        setShowModal={setEditShowModal}
+        editorContent={editorContent}
+        post={selectedPost}
+        setEditorContent={setEditorContent}
+        handlePostEdit={handlePostUpdate}
+        categories={categories}
+      />
     </div>
   );
 };
 
-export default PostManagement;
+export default Post;
