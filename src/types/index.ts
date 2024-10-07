@@ -13,6 +13,7 @@ export interface IUser {
 export interface IPost {
   _id: string;
   user: string;
+  image?: string;
   title: string;
   content: string;
   category: string;

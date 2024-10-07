@@ -21,7 +21,7 @@ const Login = () => {
   } = useForm<LoginFormData>();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { mutate: handleUserLogin, isPending } = useUserLogin();
+  const { mutate: handleUserLogin } = useUserLogin();
 
   const onSubmit = (data: LoginFormData) => {
     setLoading(true);
@@ -30,10 +30,6 @@ const Login = () => {
       setLoading(false);
     }, 2000);
   };
-
-  if (isPending) {
-    <>Loading...</>;
-  }
 
   return (
     <div className="flex items-center justify-center h-screen text-black">

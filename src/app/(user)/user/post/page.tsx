@@ -16,16 +16,12 @@ const Post = () => {
   const [postsPerPage] = useState(5);
 
   const { mutate: handlePostCreate } = usePostCreation();
-  const { data: posts, isLoading } = useGetPosts();
+  const { data: posts } = useGetPosts();
 
   const handleEdit = (post: IPost) => {
     setEditorContent(post.content);
     setShowModal(true);
   };
-
-  if (isLoading) {
-    return <>Loading.....</>;
-  }
 
   return (
     <div className="container mx-auto p-6">

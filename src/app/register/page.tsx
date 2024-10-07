@@ -28,7 +28,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const password = watch("password");
-  const { mutate: handleUserRegistration, isPending } = useUserRegistration();
+  const { mutate: handleUserRegistration } = useUserRegistration();
 
   const onSubmit = (data: RegisterFormData) => {
     data.profilePic =
@@ -39,9 +39,7 @@ const Register = () => {
       setLoading(false);
     }, 2000);
   };
-  if (isPending) {
-    <>Loading.....</>;
-  }
+
   return (
     <div className="flex items-center justify-center h-screen text-black">
       <motion.div
