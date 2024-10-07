@@ -15,8 +15,8 @@ const Post = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(5);
 
-  const { mutate: handlePostCreate } = usePostCreation();
-  const { data: posts } = useGetPosts();
+  const { data: posts, refetch: postRefetch } = useGetPosts();
+  const { mutate: handlePostCreate } = usePostCreation(postRefetch);
 
   const handleEdit = (post: IPost) => {
     setEditorContent(post.content);

@@ -32,7 +32,6 @@ export const PostModal = ({
   const onSubmit = (data: IPost) => {
     data.content = editorContent;
     data.user = user?._id as string;
-    console.log(data);
     handlePostCreate(data);
     reset();
     setShowModal(false);
