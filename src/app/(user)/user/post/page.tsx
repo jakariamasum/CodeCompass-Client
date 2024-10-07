@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { IPost } from "@/types";
-import { usePostCreation } from "@/hooks/post.hook";
+import { useGetPosts, usePostCreation } from "@/hooks/post.hook";
 import { PostList } from "@/components/ui/lists/posts.list";
 import { PostModal } from "@/components/ui/modals/post.create";
 
@@ -10,19 +10,22 @@ const categories = ["Web", "Software Engineering", "AI", "Mobile", "DevOps"];
 const Post = () => {
   const [showModal, setShowModal] = useState(false);
   const [editorContent, setEditorContent] = useState("");
-  const [currentPost, setCurrentPost] = useState<IPost | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(5);
 
   const { mutate: handlePostCreate } = usePostCreation();
+  const { data: posts, isLoading } = useGetPosts();
 
   const handleEdit = (post: IPost) => {
-    setCurrentPost(post);
     setEditorContent(post.content);
     setShowModal(true);
   };
+
+  if (isLoading) {
+    return <>Loading.....</>;
+  }
 
   return (
     <div className="container mx-auto p-6">
@@ -31,7 +34,6 @@ const Post = () => {
         <button
           onClick={() => {
             setShowModal(true);
-            setCurrentPost(null);
             setEditorContent("");
           }}
           className="bg-[#009CA6] hover:bg-blue-500 text-white px-4 py-2 rounded-lg"
@@ -63,6 +65,7 @@ const Post = () => {
       </div>
 
       <PostList
+        posts={posts || []}
         searchTerm={searchTerm}
         selectedCategory={selectedCategory}
         currentPage={currentPage}
@@ -91,7 +94,6 @@ const Post = () => {
       <PostModal
         showModal={showModal}
         setShowModal={setShowModal}
-        currentPost={currentPost}
         editorContent={editorContent}
         setEditorContent={setEditorContent}
         handlePostCreate={handlePostCreate}

@@ -13,3 +13,12 @@ export const createPost = async (postData: FieldValues) => {
     );
   }
 };
+
+export const getAllPost = async () => {
+  try {
+    const { data } = await axiosInstance.get("/posts");
+    return data.data;
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { IPost } from "@/types";
@@ -8,7 +7,6 @@ import Content from "../Content";
 interface PostModalProps {
   showModal: boolean;
   setShowModal: (show: boolean) => void;
-  currentPost: IPost | null;
   editorContent: string;
   setEditorContent: (content: string) => void;
   handlePostCreate: (data: IPost) => void;
@@ -18,32 +16,18 @@ interface PostModalProps {
 export const PostModal = ({
   showModal,
   setShowModal,
-  currentPost,
   editorContent,
   setEditorContent,
   handlePostCreate,
   categories,
 }: PostModalProps) => {
   const { user } = useUser();
-  console.log(user);
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
   } = useForm<IPost>();
-
-  useEffect(() => {
-    if (currentPost) {
-      setValue("title", currentPost.title);
-      setValue("category", currentPost.category);
-      setValue("isPremium", currentPost.isPremium);
-      setEditorContent(currentPost.content);
-    } else {
-      reset();
-    }
-  }, [currentPost, setValue, reset, setEditorContent]);
 
   const onSubmit = (data: IPost) => {
     data.content = editorContent;
@@ -66,9 +50,7 @@ export const PostModal = ({
           <FaTimes />
         </button>
 
-        <h2 className="text-2xl mb-4 font-semibold">
-          {currentPost ? "Edit Post" : "Create New Post"}
-        </h2>
+        <h2 className="text-2xl mb-4 font-semibold">Create New Post</h2>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -124,7 +106,7 @@ export const PostModal = ({
             type="submit"
             className="w-full bg-[#009CA6] text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
           >
-            {currentPost ? "Update Post" : "Submit Post"}
+            Submit Post
           </button>
         </form>
       </div>

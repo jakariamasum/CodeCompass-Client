@@ -1,5 +1,5 @@
-import { createPost } from "@/services/postServices";
-import { useMutation } from "@tanstack/react-query";
+import { createPost, getAllPost } from "@/services/postServices";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { FieldValues } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -13,5 +13,12 @@ export const usePostCreation = () => {
     onError: (error) => {
       toast.error(error.message);
     },
+  });
+};
+
+export const useGetPosts = () => {
+  return useQuery({
+    queryKey: ["GET_POSTS"],
+    queryFn: async () => await getAllPost(),
   });
 };
