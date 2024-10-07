@@ -22,3 +22,16 @@ export const getAllPost = async () => {
     throw new Error(error.message);
   }
 };
+
+export const updatePost = async (id: string, postData: FieldValues) => {
+  try {
+    const { data } = await axiosInstance.put(`/posts/${id}`, postData);
+    return data;
+  } catch (error: any) {
+    console.error("Error updating post:", error);
+    throw new Error(
+      error.response?.data?.message ||
+        "An error occurred while updating the post"
+    );
+  }
+};

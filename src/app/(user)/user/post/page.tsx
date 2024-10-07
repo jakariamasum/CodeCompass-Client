@@ -1,26 +1,30 @@
 "use client";
 import { useState } from "react";
 import { IPost } from "@/types";
-import { useGetPosts, usePostCreation } from "@/hooks/post.hook";
+import { useGetPosts, usePostCreation, usePostUpdate } from "@/hooks/post.hook";
 import { PostList } from "@/components/ui/lists/posts.list";
 import { PostModal } from "@/components/ui/modals/post.create";
+import PostEditModal from "@/components/ui/modals/post.edit";
 
 const categories = ["Web", "Software Engineering", "AI", "Mobile", "DevOps"];
 
 const Post = () => {
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setEditShowModal] = useState(false);
   const [editorContent, setEditorContent] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(5);
+  const [selectedPost, setSelectedPost] = useState<IPost | null>(null);
 
   const { data: posts, refetch: postRefetch } = useGetPosts();
   const { mutate: handlePostCreate } = usePostCreation(postRefetch);
+  const { mutate: handlePostUpdate } = usePostUpdate(postRefetch);
 
   const handleEdit = (post: IPost) => {
-    setEditorContent(post.content);
-    setShowModal(true);
+    setSelectedPost(post);
+    setEditShowModal(true);
   };
 
   return (
@@ -93,6 +97,15 @@ const Post = () => {
         editorContent={editorContent}
         setEditorContent={setEditorContent}
         handlePostCreate={handlePostCreate}
+        categories={categories}
+      />
+      <PostEditModal
+        showModal={showEditModal}
+        setShowModal={setEditShowModal}
+        editorContent={editorContent}
+        post={selectedPost}
+        setEditorContent={setEditorContent}
+        handlePostEdit={handlePostUpdate}
         categories={categories}
       />
     </div>
