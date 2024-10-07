@@ -1,7 +1,12 @@
 "use client";
 import { useState } from "react";
 import { IPost } from "@/types";
-import { useGetPosts, usePostCreation, usePostUpdate } from "@/hooks/post.hook";
+import {
+  useGetPosts,
+  usePostCreation,
+  usePostDelete,
+  usePostUpdate,
+} from "@/hooks/post.hook";
 import { PostList } from "@/components/ui/lists/posts.list";
 import { PostModal } from "@/components/ui/modals/post.create";
 import PostEditModal from "@/components/ui/modals/post.edit";
@@ -21,6 +26,7 @@ const Post = () => {
   const { data: posts, refetch: postRefetch } = useGetPosts();
   const { mutate: handlePostCreate } = usePostCreation(postRefetch);
   const { mutate: handlePostUpdate } = usePostUpdate(postRefetch);
+  const { mutate: handlePostDelete } = usePostDelete(postRefetch);
 
   const handleEdit = (post: IPost) => {
     setSelectedPost(post);
@@ -71,7 +77,7 @@ const Post = () => {
         currentPage={currentPage}
         postsPerPage={postsPerPage}
         onEdit={handleEdit}
-        onDelete={() => {}}
+        onDelete={handlePostDelete}
       />
 
       <div className="mt-4">

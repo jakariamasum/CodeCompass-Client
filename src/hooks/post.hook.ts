@@ -1,4 +1,9 @@
-import { createPost, getAllPost, updatePost } from "@/services/postServices";
+import {
+  createPost,
+  deletePost,
+  getAllPost,
+  updatePost,
+} from "@/services/postServices";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { FieldValues } from "react-hook-form";
 import { toast } from "sonner";
@@ -33,6 +38,21 @@ export const usePostUpdate = (refetch: () => void) => {
     },
   });
 };
+
+export const usePostDelete = (refetch: () => void) => {
+  return useMutation<any, Error, string>({
+    mutationKey: ["POST_DELETED"],
+    mutationFn: async (id) => await deletePost(id),
+    onSuccess: () => {
+      toast.success("Post deleted successfully.");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+};
+
 export const useGetPosts = () => {
   return useQuery({
     queryKey: ["GET_POSTS"],

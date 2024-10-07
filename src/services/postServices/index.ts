@@ -35,3 +35,15 @@ export const updatePost = async (id: string, postData: FieldValues) => {
     );
   }
 };
+export const deletePost = async (id: string) => {
+  try {
+    const { data } = await axiosInstance.delete(`/posts/${id}`);
+    return data;
+  } catch (error: any) {
+    console.error("Error deleting post:", error);
+    throw new Error(
+      error.response?.data?.message ||
+        "An error occurred while deleting the post"
+    );
+  }
+};
