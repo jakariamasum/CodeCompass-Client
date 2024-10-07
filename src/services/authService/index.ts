@@ -21,11 +21,12 @@ export const loginUser = async (userData: FieldValues) => {
     const { data } = await axiosInstance.post("/users/login", userData);
 
     if (data.success) {
-      cookies().set("accessToken", data?.accessToken);
+      cookies().set("accessToken", data?.data?.accessToken);
     }
-
+    console.log(data);
     return data;
   } catch (error: any) {
+    console.log(error);
     throw new Error(error);
   }
 };
@@ -41,12 +42,13 @@ export const getCurrentUser = async () => {
 
   if (accessToken) {
     decodedToken = await jwtDecode(accessToken);
+    console.log(decodedToken);
 
     return {
       _id: decodedToken._id,
-      fname: decodedToken.name,
-      lname: decodedToken.name,
-      email: decodedToken.email,
+      fname: decodedToken.fname,
+      lname: decodedToken.lname,
+      email: decodedToken.userId,
       role: decodedToken.role,
     };
   }
