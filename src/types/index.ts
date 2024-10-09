@@ -28,3 +28,18 @@ export interface IPost {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface IComment {
+  _id: string;
+  user: {
+    fname: string;
+    profilePic: string;
+    _id: string;
+  };
+  content: string;
+  post?: string;
+  likes?: number;
+  dislikes?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}

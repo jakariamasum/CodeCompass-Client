@@ -10,6 +10,13 @@ import {
   usePostLike,
   useSinglePost,
 } from "@/hooks/post.hook";
+import CommentSection from "@/components/ui/Comment";
+import { useUser } from "@/context/user.provider";
+import { IUser } from "@/types";
+import {
+  useCommentCreation,
+  useSinglePostComments,
+} from "@/hooks/comment.hook";
 
 const SunEditor = dynamic(() => import("suneditor-react"), {
   ssr: false,
@@ -20,10 +27,13 @@ export default function PostDetails({ params }: { params: { id: string } }) {
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const [hasLiked, setHasLiked] = useState<boolean>(false);
   const [hasDisliked, setHasDisliked] = useState<boolean>(false);
+  const { user } = useUser();
 
   const { data: post, refetch: singlePostRefetch } = useSinglePost(params?.id);
   const { mutate: handleLike } = usePostLike(postRefetch);
   const { mutate: handleDisLike } = usePostDislike(postRefetch);
+  const { mutate: handleComment } = useCommentCreation(postRefetch);
+  const { data: comments } = useSinglePostComments(params?.id);
 
   const handleLikeClick = () => {
     if (!hasLiked) {
@@ -168,6 +178,12 @@ export default function PostDetails({ params }: { params: { id: string } }) {
           </div>
         </footer>
       </article>
+      <CommentSection
+        postId={params?.id}
+        comments={comments}
+        currentUser={user as IUser}
+        onAddComment={handleComment}
+      />
     </div>
   );
 }
