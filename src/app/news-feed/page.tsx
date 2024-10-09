@@ -317,11 +317,9 @@ export default function NewsFeed() {
                   </div>
                   <div className="mt-4">
                     {post.isPremium ? (
-                      <Link href={`/purchase/${post._id}`} passHref>
-                        <span className="inline-block bg-yellow-500 text-white px-6 py-2 rounded-full hover:bg-yellow-600 transition-colors duration-300 cursor-pointer">
-                          Purchase to Read Full Post
-                        </span>
-                      </Link>
+                      <button className="inline-block bg-yellow-500 text-white px-6 py-2 rounded-full hover:bg-yellow-600 transition-colors duration-300 cursor-pointer">
+                        Subscribe to Premium ($20/month)
+                      </button>
                     ) : (
                       <Link href={`/posts/${post._id}`} passHref>
                         <span className="inline-block bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors duration-300 cursor-pointer">
