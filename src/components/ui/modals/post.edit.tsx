@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { IPost } from "@/types";
 import { useUser } from "@/context/user.provider";
 import Content from "../Content";
+import Tag from "../Tag";
 
 interface PostModalProps {
   showModal: boolean;
@@ -13,6 +14,8 @@ interface PostModalProps {
   handlePostEdit: (data: { id: string; postData: IPost }) => void;
   categories: string[];
   post: IPost | null;
+  setTags: (tags: string[]) => void;
+  tags: string[];
 }
 
 const PostEditModal = ({
@@ -20,9 +23,11 @@ const PostEditModal = ({
   setShowModal,
   editorContent,
   setEditorContent,
+  setTags,
   handlePostEdit,
   post,
   categories,
+  tags,
 }: PostModalProps) => {
   const { user } = useUser();
   const { register, handleSubmit, reset } = useForm<IPost>();
@@ -33,14 +38,19 @@ const PostEditModal = ({
         title: post.title || "",
         category: post.category || "",
         isPremium: post.isPremium || false,
+        tags: post.tags || [],
       });
       setEditorContent(post.content || "");
+      setTags(post.tags || []);
     }
   }, [post, reset, setEditorContent]);
+  console.log(tags);
 
   const onSubmit = (data: IPost) => {
     data.content = editorContent;
     data.user = user?._id as string;
+    data.tags = tags;
+    console.log(data);
     handlePostEdit({ id: post?._id as string, postData: data });
     reset();
     setShowModal(false);
@@ -91,6 +101,11 @@ const PostEditModal = ({
                 </option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium">Tags</label>
+            <Tag value={tags} onChange={setTags} />
           </div>
 
           <div className="flex items-center">

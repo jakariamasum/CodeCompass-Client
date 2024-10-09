@@ -27,6 +27,7 @@ const Post = () => {
   const { mutate: handlePostCreate } = usePostCreation(postRefetch);
   const { mutate: handlePostUpdate } = usePostUpdate(postRefetch);
   const { mutate: handlePostDelete } = usePostDelete(postRefetch);
+  const [tags, setTags] = useState<string[]>(["tech"]);
 
   const handleEdit = (post: IPost) => {
     setSelectedPost(post);
@@ -104,6 +105,8 @@ const Post = () => {
         setEditorContent={setEditorContent}
         handlePostCreate={handlePostCreate}
         categories={categories}
+        tags={tags}
+        setTags={setTags}
       />
       <PostEditModal
         showModal={showEditModal}
@@ -113,6 +116,8 @@ const Post = () => {
         setEditorContent={setEditorContent}
         handlePostEdit={handlePostUpdate}
         categories={categories}
+        tags={tags}
+        setTags={setTags}
       />
     </div>
   );

@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { IPost } from "@/types";
 import { useUser } from "@/context/user.provider";
 import Content from "../Content";
+import Tag from "../Tag";
 
 interface PostModalProps {
   showModal: boolean;
@@ -11,6 +12,8 @@ interface PostModalProps {
   setEditorContent: (content: string) => void;
   handlePostCreate: (data: IPost) => void;
   categories: string[];
+  tags: string[];
+  setTags: (tags: string[]) => void;
 }
 
 export const PostModal = ({
@@ -20,6 +23,8 @@ export const PostModal = ({
   setEditorContent,
   handlePostCreate,
   categories,
+  tags,
+  setTags,
 }: PostModalProps) => {
   const { user } = useUser();
   const {
@@ -32,6 +37,7 @@ export const PostModal = ({
   const onSubmit = (data: IPost) => {
     data.content = editorContent;
     data.user = user?._id as string;
+    data.tags = tags;
     handlePostCreate(data);
     reset();
     setShowModal(false);
@@ -88,6 +94,10 @@ export const PostModal = ({
             {errors.category && (
               <p className="text-red-500 text-sm">{errors.category.message}</p>
             )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Content</label>
+            <Tag value={tags} onChange={setTags} />
           </div>
 
           <div className="flex items-center">
