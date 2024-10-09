@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
-
 import { cookies } from "next/headers";
 import { FieldValues } from "react-hook-form";
 import { jwtDecode } from "jwt-decode";
@@ -23,7 +22,6 @@ export const loginUser = async (userData: FieldValues) => {
     if (data.success) {
       cookies().set("accessToken", data?.data?.accessToken);
     }
-    console.log(data);
     return data;
   } catch (error: any) {
     console.log(error);

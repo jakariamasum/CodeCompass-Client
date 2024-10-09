@@ -55,3 +55,50 @@ export const deletePost = async (id: string) => {
     );
   }
 };
+export const getSinglePost = async (id: string) => {
+  try {
+    const { data } = await axiosInstance.get(`/posts/${id}`);
+    return data.data;
+  } catch (error: any) {
+    console.error("Error getting post:", error);
+    throw new Error(
+      error.response?.data?.message ||
+        "An error occurred while getting the post"
+    );
+  }
+};
+export const increaseLike = async (id: string) => {
+  try {
+    const { data } = await axiosInstance.put(`/posts/likes/${id}`);
+    return data;
+  } catch (error: any) {
+    console.error("Error like post:", error);
+    throw new Error(
+      error.response?.data?.message || "An error occurred while like the post"
+    );
+  }
+};
+export const increaseDisLike = async (id: string) => {
+  try {
+    const { data } = await axiosInstance.put(`/posts/dislikes/${id}`);
+    return data;
+  } catch (error: any) {
+    console.error("Error dislike post:", error);
+    throw new Error(
+      error.response?.data?.message ||
+        "An error occurred while dislike the post"
+    );
+  }
+};
+export const followPost = async (id: string, user: string) => {
+  try {
+    const { data } = await axiosInstance.put(`/posts/follow/${id}`, user);
+    return data;
+  } catch (error: any) {
+    console.error("Error following post:", error);
+    throw new Error(
+      error.response?.data?.message ||
+        "An error occurred while following the post"
+    );
+  }
+};

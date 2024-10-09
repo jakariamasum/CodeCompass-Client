@@ -1,217 +1,347 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { FaSearch } from "react-icons/fa";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import InfiniteScroll from "react-infinite-scroll-component";
 import { useGetPosts } from "@/hooks/post.hook";
+import InfiniteScroll from "react-infinite-scroll-component";
 import { IPost } from "@/types";
+import "suneditor/dist/css/suneditor.min.css";
+import dynamic from "next/dynamic";
+const SunEditor = dynamic(() => import("suneditor-react"), {
+  ssr: false,
+});
 
-const NewsFeed: React.FC = () => {
-  const { data: posts = [], isPending } = useGetPosts();
-  const [filteredPosts, setFilteredPosts] = useState<IPost[]>([]);
-  const [displayedPosts, setDisplayedPosts] = useState<IPost[]>([]);
+type Post = {
+  _id: string;
+  user: {
+    _id: string;
+    fname: string;
+    profilePic: string;
+  };
+  title: string;
+  content: string;
+  category: string;
+  isPremium: boolean;
+  tags: string[];
+  likes: number;
+  dislikes: number;
+  createdAt: string;
+};
+
+export default function NewsFeed() {
+  const { data: allPosts, isLoading } = useGetPosts();
+  const [displayedPosts, setDisplayedPosts] = useState<Post[]>([]);
+  const [sort, setSort] = useState<"latest" | "popular" | "controversial">(
+    "latest"
+  );
+  const [search, setSearch] = useState("");
+  const [showCreatePost, setShowCreatePost] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const { register, handleSubmit } = useForm<{ search: string }>();
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 1;
 
   useEffect(() => {
-    setFilteredPosts(posts);
-    setDisplayedPosts(posts.slice(0, 9));
-  }, [posts]);
-
-  const handleSearch = ({ search }: { search: string }) => {
-    if (!search) {
-      setFilteredPosts(posts);
-    } else {
-      const filtered = posts.filter((post: IPost) =>
-        post.title.toLowerCase().includes(search.toLowerCase())
+    if (allPosts) {
+      const filteredPosts = allPosts.filter(
+        (post: IPost) =>
+          post.title.toLowerCase().includes(search.toLowerCase()) ||
+          post.content.toLowerCase().includes(search.toLowerCase()) ||
+          post.tags.some((tag) =>
+            tag.toLowerCase().includes(search.toLowerCase())
+          )
       );
-      setFilteredPosts(filtered);
+
+      switch (sort) {
+        case "latest":
+          filteredPosts.sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          break;
+        case "popular":
+          filteredPosts.sort((a: any, b: any) => b.likes - a.likes);
+          break;
+        case "controversial":
+          filteredPosts.sort(
+            (a: any, b: any) => b.likes + b.dislikes - (a.likes + a.dislikes)
+          );
+          break;
+      }
+
+      setDisplayedPosts(filteredPosts);
     }
-    setDisplayedPosts(filteredPosts.slice(0, 9));
-    setHasMore(true);
+  }, [allPosts, search, sort]);
+  const loadMorePosts = () => {
+    if (allPosts) {
+      const nextPage = page + 1;
+      const startIndex = (nextPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const newPosts = allPosts.slice(startIndex, endIndex);
+
+      setDisplayedPosts((prevPosts) => [...prevPosts, ...newPosts]);
+      setPage(nextPage);
+      setHasMore(endIndex < allPosts.length);
+    }
   };
 
-  const fetchMoreData = () => {
-    const currentLength = displayedPosts.length;
-    const moreItems = filteredPosts.slice(currentLength, currentLength + 9);
-    if (moreItems.length === 0) {
-      setHasMore(false);
-      return;
-    }
-    setTimeout(() => {
-      setDisplayedPosts([...displayedPosts, ...moreItems]);
-    }, 500);
-  };
-
-  if (isPending) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#009CA6]"></div>
-      </div>
-    );
-  }
-
-  const getRowLayout = (posts: IPost[], rowIndex: number) => {
-    const layouts = [
-      <div key={3} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {posts.map((post) => (
-          <div
-            key={post._id}
-            className="bg-white rounded-lg shadow-lg overflow-hidden"
-          >
-            <Image
-              src={post.image || "/placeholder.svg"}
-              alt={post.title}
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h2 className="text-xl font-bold mb-2 text-gray-800">
-                {post.title}
-              </h2>
-              <p className="text-[#009CA6] mb-2">{post.category}</p>
-              <Link
-                href={`/posts/${post._id}`}
-                className="text-[#009CA6] hover:underline"
-              >
-                Read More
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>,
-      <div key={4} className="space-y-4">
-        {posts.map((post) => (
-          <div
-            key={post._id}
-            className="flex items-center bg-white rounded-lg shadow-lg overflow-hidden p-4"
-          >
-            <Image
-              src={post.image || "/placeholder.svg"}
-              alt={post.title}
-              width={100}
-              height={100}
-              className="w-24 h-24 object-cover rounded-lg mr-6"
-            />
-            <div>
-              <h2 className="text-xl font-semibold mb-2 text-gray-800">
-                {post.title}
-              </h2>
-              <p className="text-[#009CA6] mb-2">{post.category}</p>
-              <Link
-                href={`/posts/${post._id}`}
-                className="text-[#009CA6] hover:underline"
-              >
-                Read More
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>,
-      <div key={5} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {posts.map((post) => (
-          <div
-            key={post._id}
-            className="relative bg-gradient-to-r from-[#009CA6] to-[#007A82] text-white rounded-lg shadow-lg overflow-hidden"
-          >
-            <Image
-              src={post.image || "/placeholder.svg"}
-              alt={post.title}
-              width={800}
-              height={400}
-              className="w-full h-64 object-cover opacity-50"
-            />
-            <div className="absolute inset-0 flex flex-col justify-end p-6">
-              <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
-              <p className="mb-4">{post.category}</p>
-              <Link
-                href={`/posts/${post._id}`}
-                className="inline-block bg-white text-[#009CA6] px-4 py-2 rounded hover:bg-gray-100 transition-colors"
-              >
-                Read Featured Post
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>,
-    ];
-
-    return layouts[rowIndex % layouts.length];
+  const handleCreatePost = (event: React.FormEvent) => {
+    event.preventDefault();
+    // Handle post creation logic here
+    setShowCreatePost(false);
   };
 
   return (
-    <div className="px-4 lg:px-24 bg-gray-100 text-black mx-auto py-12">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-12">
-        <h1 className="text-4xl font-extrabold text-gray-800 mb-6 md:mb-0">
-          Tech Tips & Tutorials
-        </h1>
-        <button className="bg-[#009CA6] text-white px-6 py-3 rounded-full hover:bg-[#007A82] transition-colors shadow-lg">
-          Create Post
-        </button>
-      </div>
-
-      <form onSubmit={handleSubmit(handleSearch)} className="mb-12">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search tech tips..."
-            className="w-full p-4 pr-12 rounded-full border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#009CA6] focus:border-transparent"
-            {...register("search")}
-          />
-          <button
-            type="submit"
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-[#009CA6]"
-          >
-            <FaSearch size={24} />
-          </button>
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="bg-white rounded-lg shadow-lg p-6 sticky top-4 z-10">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-3xl font-bold text-gray-800">
+              Tech Tips News Feed
+            </h1>
+            <button
+              onClick={() => setShowCreatePost(!showCreatePost)}
+              className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            >
+              Create Post
+            </button>
+          </div>
+          <AnimatePresence>
+            {showCreatePost && (
+              <motion.form
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-4 mb-6"
+                onSubmit={handleCreatePost}
+              >
+                <input
+                  type="text"
+                  placeholder="Title"
+                  required
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <textarea
+                  placeholder="Content"
+                  required
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={4}
+                />
+                <div className="flex gap-4">
+                  <select className="w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Category</option>
+                    <option value="web">Web</option>
+                    <option value="mobile">Mobile</option>
+                    <option value="ai">AI</option>
+                    <option value="devops">DevOps</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Tags (comma separated)"
+                    className="w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 text-gray-700">
+                    <input
+                      type="checkbox"
+                      className="rounded text-blue-600 focus:ring-blue-500"
+                    />
+                    Premium Content
+                  </label>
+                  <button
+                    type="submit"
+                    className="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                  >
+                    Post
+                  </button>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
+          <div className="flex gap-4">
+            <div className="relative flex-grow">
+              <input
+                type="search"
+                placeholder="Search tips..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            <select
+              value={sort}
+              onChange={(e) =>
+                setSort(
+                  e.target.value as "latest" | "popular" | "controversial"
+                )
+              }
+              className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="latest">Latest</option>
+              <option value="popular">Most Popular</option>
+              <option value="controversial">Controversial</option>
+            </select>
+          </div>
         </div>
-      </form>
 
-      <InfiniteScroll
-        dataLength={displayedPosts.length}
-        next={fetchMoreData}
-        hasMore={hasMore}
-        loader={<h4>Loading...</h4>}
-        endMessage={
-          <p className="text-center mt-4">
-            <b>Yay! You have seen it all</b>
-          </p>
-        }
-      >
-        {displayedPosts.length > 0 ? (
-          <div className="space-y-12">
-            {Array.from({ length: Math.ceil(displayedPosts.length / 3) }).map(
-              (_, rowIndex) => (
+        <InfiniteScroll
+          dataLength={displayedPosts.length}
+          next={loadMorePosts}
+          hasMore={hasMore}
+          loader={
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          }
+          endMessage={
+            <p className="text-center text-gray-500 py-8">
+              No more posts to load.
+            </p>
+          }
+        >
+          <div className="space-y-6">
+            <AnimatePresence>
+              {displayedPosts.map((post, index) => (
                 <motion.div
-                  key={rowIndex}
+                  key={post._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: rowIndex * 0.1 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`bg-white rounded-lg shadow-lg p-6 ${
+                    index % 2 === 0 ? "transform translate-x-4" : ""
+                  }`}
                 >
-                  {getRowLayout(
-                    displayedPosts.slice(rowIndex * 3, (rowIndex + 1) * 3),
-                    rowIndex
-                  )}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <Image
+                        src={post.user.profilePic}
+                        alt={post.user.fname}
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                      />
+                      <div>
+                        <h3 className="font-semibold text-gray-800">
+                          {post.user.fname}
+                        </h3>
+                        <p className="text-sm text-gray-500">{post.category}</p>
+                      </div>
+                    </div>
+                    {post.isPremium && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6 text-yellow-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <h2 className="text-xl font-bold mb-2 text-gray-800">
+                    {post.title}
+                  </h2>
+                  <div>
+                    <SunEditor
+                      setContents={post?.content}
+                      height="150px"
+                      disable={true}
+                      hideToolbar={true}
+                      setOptions={{
+                        height: "auto",
+                        buttonList: [],
+                      }}
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {post.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between text-gray-500">
+                    <div className="flex items-center space-x-4">
+                      <button className="flex items-center space-x-1 hover:text-blue-600 transition-colors duration-300">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                        </svg>
+                        <span>{post.likes}</span>
+                      </button>
+                      <button className="flex items-center space-x-1 hover:text-red-600 transition-colors duration-300">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
+                        </svg>
+                        <span>{post.dislikes}</span>
+                      </button>
+                    </div>
+                    <button className="text-blue-600 hover:underline transition-colors duration-300">
+                      Follow
+                    </button>
+                  </div>
+                  <div className="mt-4">
+                    {post.isPremium ? (
+                      <Link href={`/purchase/${post._id}`} passHref>
+                        <span className="inline-block bg-yellow-500 text-white px-6 py-2 rounded-full hover:bg-yellow-600 transition-colors duration-300 cursor-pointer">
+                          Purchase to Read Full Post
+                        </span>
+                      </Link>
+                    ) : (
+                      <Link href={`/posts/${post._id}`} passHref>
+                        <span className="inline-block bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors duration-300 cursor-pointer">
+                          See Full Post
+                        </span>
+                      </Link>
+                    )}
+                  </div>
                 </motion.div>
-              )
-            )}
+              ))}
+            </AnimatePresence>
           </div>
-        ) : (
-          <div className="text-center py-12 bg-white rounded-lg shadow-lg">
-            <FaSearch size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-xl text-gray-600">
-              No posts found. Try a different search term.
-            </p>
+        </InfiniteScroll>
+
+        {isLoading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           </div>
         )}
-      </InfiniteScroll>
+      </div>
     </div>
   );
-};
-
-export default NewsFeed;
+}

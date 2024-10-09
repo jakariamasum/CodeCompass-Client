@@ -1,135 +1,173 @@
 "use client";
+
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
+import "suneditor/dist/css/suneditor.min.css";
 import Image from "next/image";
-import { FaStar, FaUserCircle } from "react-icons/fa";
+import {
+  useGetPosts,
+  usePostDislike,
+  usePostLike,
+  useSinglePost,
+} from "@/hooks/post.hook";
 
-const PostDetails = () => {
-  const [rating, setRating] = useState(0);
-  const [comments, setComments] = useState([
-    {
-      name: "John Doe",
-      content: "This was an insightful post, thank you!",
-    },
-    {
-      name: "Jane Smith",
-      content: "I learned a lot from this post, especially about AI.",
-    },
-  ]);
+const SunEditor = dynamic(() => import("suneditor-react"), {
+  ssr: false,
+});
 
-  const handleRating = (rate: number) => {
-    setRating(rate);
+export default function PostDetails({ params }: { params: { id: string } }) {
+  const { refetch: postRefetch } = useGetPosts();
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const [hasLiked, setHasLiked] = useState<boolean>(false);
+  const [hasDisliked, setHasDisliked] = useState<boolean>(false);
+
+  const { data: post, refetch: singlePostRefetch } = useSinglePost(params?.id);
+  const { mutate: handleLike } = usePostLike(postRefetch);
+  const { mutate: handleDisLike } = usePostDislike(postRefetch);
+
+  const handleLikeClick = () => {
+    if (!hasLiked) {
+      handleLike(post?._id);
+      singlePostRefetch();
+      setHasLiked(true);
+    }
   };
 
-  const post = {
-    title: "Mastering Web Development in 2024",
-    description: `Web development is evolving at a fast pace. In 2024, the focus is on performance, security, and user experience. This post covers the most important trends and technologies you need to know to stay relevant in the web development industry.`,
-    category: "Web Development",
-    images: [
-      "https://i.ibb.co.com/qdwG9jy/shutterstock-1361674454-100939444-orig.jpg",
-      "https://i.ibb.co.com/qdwG9jy/shutterstock-1361674454-100939444-orig.jpg",
-    ],
-    videos: ["https://www.youtube.com/embed/lkIFF4maKMU?si=0TkOiKN3rraRD5nV"],
-    author: "Abdullah Al Noman",
-    date: "October 4, 2024",
-    averageRating: 4.5,
+  const handleDislikeClick = () => {
+    if (!hasDisliked) {
+      handleDisLike(post?._id);
+      singlePostRefetch();
+      setHasDisliked(true);
+    }
+  };
+
+  const handleFollowClick = () => {
+    singlePostRefetch();
+    setIsFollowing(true);
   };
 
   return (
-    <div className="px-2 lg:px-24 mx-auto p-4 bg-slate-50 text-black">
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold">{post.title}</h1>
-        <div className="flex items-center justify-between mt-4">
-          <div>
-            <span className="text-gray-600">By {post.author}</span> |{" "}
-            <span className="text-gray-600">{post.date}</span>
-          </div>
-          <div className="bg-blue-500 text-white py-1 px-3 rounded-lg text-sm">
-            {post.category}
-          </div>
-        </div>
-      </header>
-
-      <section className="mb-12">
-        <p className="text-lg text-gray-700 mb-4">{post.description}</p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          {post.images.map((src, index) => (
-            <div key={index} className="relative w-full h-60">
+    <div className="max-w-4xl mx-auto p-6 text-black bg-gray-100 min-h-screen">
+      <article className="bg-white shadow-lg p-6 mb-6">
+        <header className="mb-4">
+          <h1 className="text-3xl font-bold mb-2">{post?.title}</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
               <Image
-                src={src}
-                alt={`Post image ${index + 1}`}
-                layout="fill"
-                objectFit="cover"
-                className="rounded-lg"
+                src={post?.user?.profilePic}
+                alt={post?.user?.fname}
+                className="w-12 h-12 rounded-full"
+                width={12}
+                height={12}
               />
-            </div>
-          ))}
-        </div>
-
-        <div className="mb-8">
-          {post.videos.map((video, index) => (
-            <div key={index} className="relative w-full h-72">
-              <iframe
-                width="100%"
-                height="100%"
-                className="rounded-lg"
-                src={video}
-                allowFullScreen
-                title={`Video ${index + 1}`}
-              ></iframe>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">Rate This Post</h2>
-        <div className="flex items-center">
-          {Array(5)
-            .fill("")
-            .map((_, index) => (
-              <FaStar
-                key={index}
-                className={`h-6 w-6 cursor-pointer ${
-                  rating > index ? "text-yellow-500" : "text-gray-300"
-                }`}
-                onClick={() => handleRating(index + 1)}
-              />
-            ))}
-          <span className="ml-4 text-lg text-gray-600">
-            {post.averageRating.toFixed(1)} / 5
-          </span>
-        </div>
-      </section>
-
-      <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">Comments</h2>
-        <div className="space-y-6">
-          {comments.map((comment, index) => (
-            <div key={index} className="bg-gray-100 p-4 rounded-lg">
-              <div className="flex items-center mb-2">
-                <FaUserCircle className="h-8 w-8 text-gray-500" />
-                <span className="ml-3 font-medium">{comment.name}</span>
+              <div>
+                <p className="font-semibold">{post?.user?.fname}</p>
+                <p className="text-sm text-gray-500">
+                  {new Date(post?.createdAt).toLocaleDateString()}
+                </p>
               </div>
-              <p className="text-gray-700">{comment.content}</p>
             </div>
-          ))}
+            <button
+              onClick={handleFollowClick}
+              disabled={isFollowing}
+              className={`px-4 py-2 rounded-full ${
+                isFollowing
+                  ? "bg-gray-200 text-gray-800 cursor-not-allowed"
+                  : "bg-blue-500 text-white"
+              }`}
+            >
+              {isFollowing ? "Following" : "Follow"}
+            </button>
+          </div>
+        </header>
+
+        <div className="mb-6">
+          <SunEditor
+            setContents={post?.content}
+            disable={true}
+            hideToolbar={true}
+            setOptions={{
+              height: "auto",
+              buttonList: [],
+            }}
+          />
         </div>
 
-        <div className="mt-6">
-          <h3 className="text-xl mb-3 font-medium">Leave a Comment</h3>
-          <textarea
-            rows={4}
-            className="w-full border border-gray-300 p-3 rounded-lg mb-3"
-            placeholder="Write your comment here..."
-          ></textarea>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">
-            Post Comment
-          </button>
-        </div>
-      </section>
+        <footer className="border-t pt-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-500">
+                Category: {post?.category}
+              </span>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleLikeClick}
+                  disabled={hasLiked}
+                  className={`text-blue-500 hover:text-blue-600 ${
+                    hasLiked ? "cursor-not-allowed text-gray-400" : ""
+                  }`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                    />
+                  </svg>
+                </button>
+                <span>{post?.likes}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleDislikeClick}
+                  disabled={hasDisliked}
+                  className={`text-red-500 hover:text-red-600 ${
+                    hasDisliked ? "cursor-not-allowed text-gray-400" : ""
+                  }`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"
+                    />
+                  </svg>
+                </button>
+                <span>{post?.dislikes}</span>
+              </div>
+            </div>
+            {post?.isPremium && (
+              <span className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-sm font-semibold">
+                Premium
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {post?.tags?.map((tag: any) => (
+              <span
+                key={tag}
+                className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-sm"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </footer>
+      </article>
     </div>
   );
-};
-
-export default PostDetails;
+}
