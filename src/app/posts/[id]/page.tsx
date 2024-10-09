@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import "suneditor/dist/css/suneditor.min.css";
 import Image from "next/image";
@@ -12,11 +12,14 @@ import {
 } from "@/hooks/post.hook";
 import CommentSection from "@/components/ui/Comment";
 import { useUser } from "@/context/user.provider";
-import { IUser } from "@/types";
+import { IUser, IComment } from "@/types";
 import {
   useCommentCreation,
   useSinglePostComments,
 } from "@/hooks/comment.hook";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+import { BiPrinter } from "react-icons/bi";
 
 const SunEditor = dynamic(() => import("suneditor-react"), {
   ssr: false,
@@ -25,66 +28,105 @@ const SunEditor = dynamic(() => import("suneditor-react"), {
 export default function PostDetails({ params }: { params: { id: string } }) {
   const { refetch: postRefetch } = useGetPosts();
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
-  const [hasLiked, setHasLiked] = useState<boolean>(false);
-  const [hasDisliked, setHasDisliked] = useState<boolean>(false);
+  const [localLikes, setLocalLikes] = useState<number>(0);
+  const [localDislikes, setLocalDislikes] = useState<number>(0);
+  const [localComments, setLocalComments] = useState<IComment[]>([]);
   const { user } = useUser();
 
   const { data: post, refetch: singlePostRefetch } = useSinglePost(params?.id);
   const { mutate: handleLike } = usePostLike(postRefetch);
   const { mutate: handleDisLike } = usePostDislike(postRefetch);
-  const { mutate: handleComment } = useCommentCreation(postRefetch);
-  const { data: comments } = useSinglePostComments(params?.id);
+  const { data: comments, refetch: refetchComments } = useSinglePostComments(
+    params?.id
+  );
+  const { mutate: handleComment } = useCommentCreation(refetchComments);
+
+  useEffect(() => {
+    if (post) {
+      setLocalLikes(post.likes);
+      setLocalDislikes(post.dislikes);
+      setIsFollowing(post.user.followers.includes(user?._id));
+    }
+    if (comments) {
+      setLocalComments(comments);
+    }
+  }, [post, user, comments]);
 
   const handleLikeClick = () => {
-    if (!hasLiked) {
-      handleLike(post?._id);
-      singlePostRefetch();
-      setHasLiked(true);
-    }
+    handleLike(post?._id);
+    setLocalLikes((prev) => prev + 1);
+    singlePostRefetch();
   };
 
   const handleDislikeClick = () => {
-    if (!hasDisliked) {
-      handleDisLike(post?._id);
-      singlePostRefetch();
-      setHasDisliked(true);
-    }
+    handleDisLike(post?._id);
+    setLocalDislikes((prev) => prev + 1);
+    singlePostRefetch();
   };
 
   const handleFollowClick = () => {
+    setIsFollowing((prev) => !prev);
     singlePostRefetch();
-    setIsFollowing(true);
   };
+
+  const handlePrintClick = async () => {
+    if (post) {
+      const content = document.getElementById("post-content");
+      if (content) {
+        const canvas = await html2canvas(content);
+        const imgData = canvas.toDataURL("image/png");
+
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "px",
+          format: [canvas.width, canvas.height],
+        });
+
+        pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+        pdf.save(`${post.title}.pdf`);
+      }
+    }
+  };
+
+  if (!post) return <div>Loading...</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-6 text-black bg-gray-100 min-h-screen">
-      <article className="bg-white shadow-lg p-6 mb-6">
+      <article id="post-content" className="bg-white shadow-lg p-6 mb-6">
         <header className="mb-4">
-          <h1 className="text-3xl font-bold mb-2">{post?.title}</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
+            <button
+              onClick={handlePrintClick}
+              className="text-gray-600 hover:text-gray-800"
+              aria-label="Save as PDF"
+            >
+              <BiPrinter className="h-6 w-6" />
+            </button>
+          </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Image
-                src={post?.user?.profilePic}
-                alt={post?.user?.fname}
+                src={post.user.profilePic}
+                alt={post.user.fname}
                 className="w-12 h-12 rounded-full"
-                width={12}
-                height={12}
+                width={48}
+                height={48}
               />
               <div>
-                <p className="font-semibold">{post?.user?.fname}</p>
+                <p className="font-semibold">{post.user.fname}</p>
                 <p className="text-sm text-gray-500">
-                  {new Date(post?.createdAt).toLocaleDateString()}
+                  {new Date(post.createdAt).toLocaleDateString()}
                 </p>
               </div>
             </div>
             <button
               onClick={handleFollowClick}
-              disabled={isFollowing}
               className={`px-4 py-2 rounded-full ${
                 isFollowing
-                  ? "bg-gray-200 text-gray-800 cursor-not-allowed"
-                  : "bg-blue-500 text-white"
-              }`}
+                  ? "bg-gray-200 text-gray-800"
+                  : "bg-blue-500 text-white hover:bg-blue-600"
+              } transition-colors duration-200`}
             >
               {isFollowing ? "Following" : "Follow"}
             </button>
@@ -93,7 +135,7 @@ export default function PostDetails({ params }: { params: { id: string } }) {
 
         <div className="mb-6">
           <SunEditor
-            setContents={post?.content}
+            setContents={post.content}
             disable={true}
             hideToolbar={true}
             setOptions={{
@@ -107,15 +149,13 @@ export default function PostDetails({ params }: { params: { id: string } }) {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">
-                Category: {post?.category}
+                Category: {post.category}
               </span>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={handleLikeClick}
-                  disabled={hasLiked}
-                  className={`text-blue-500 hover:text-blue-600 ${
-                    hasLiked ? "cursor-not-allowed text-gray-400" : ""
-                  }`}
+                  className="text-blue-500 hover:text-blue-600 transition-colors duration-200"
+                  aria-label="Like post"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -132,15 +172,13 @@ export default function PostDetails({ params }: { params: { id: string } }) {
                     />
                   </svg>
                 </button>
-                <span>{post?.likes}</span>
+                <span>{localLikes}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={handleDislikeClick}
-                  disabled={hasDisliked}
-                  className={`text-red-500 hover:text-red-600 ${
-                    hasDisliked ? "cursor-not-allowed text-gray-400" : ""
-                  }`}
+                  className="text-red-500 hover:text-red-600 transition-colors duration-200"
+                  aria-label="Dislike post"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -157,17 +195,17 @@ export default function PostDetails({ params }: { params: { id: string } }) {
                     />
                   </svg>
                 </button>
-                <span>{post?.dislikes}</span>
+                <span>{localDislikes}</span>
               </div>
             </div>
-            {post?.isPremium && (
+            {post.isPremium && (
               <span className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-sm font-semibold">
                 Premium
               </span>
             )}
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
-            {post?.tags?.map((tag: any) => (
+            {post.tags?.map((tag: string) => (
               <span
                 key={tag}
                 className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-sm"
@@ -179,8 +217,8 @@ export default function PostDetails({ params }: { params: { id: string } }) {
         </footer>
       </article>
       <CommentSection
-        postId={params?.id}
-        comments={comments}
+        postId={params.id}
+        comments={localComments}
         currentUser={user as IUser}
         onAddComment={handleComment}
       />
