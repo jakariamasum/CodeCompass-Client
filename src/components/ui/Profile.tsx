@@ -10,15 +10,13 @@ const Profile = () => {
     {
       label: "Profile",
       href: user?.role === "admin" ? "/admin/profile" : "/user/profile",
-      icon: (
-        <FaUserCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
+      icon: <FaUserCircle className="text-black h-5 w-5 flex-shrink-0" />,
     },
     {
       label: "Tickets",
       href: user?.role === "admin" ? "/admin/tickets" : "/user/tickets",
       icon: (
-        <TbHeartHandshake className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <TbHeartHandshake className="text-black-700  h-5 w-5 flex-shrink-0" />
       ),
     },
   ];

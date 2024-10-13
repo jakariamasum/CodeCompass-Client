@@ -1,31 +1,48 @@
 "use client";
 import { useState } from "react";
 import { IPost } from "@/types";
-import { useGetPosts, usePostCreation } from "@/hooks/post.hook";
+import {
+  usePostCreation,
+  usePostDelete,
+  usePostUpdate,
+  useUserPosts,
+} from "@/hooks/post.hook";
 import { PostList } from "@/components/ui/lists/posts.list";
 import { PostModal } from "@/components/ui/modals/post.create";
+import PostEditModal from "@/components/ui/modals/post.edit";
+import { useUser } from "@/context/user.provider";
 
 const categories = ["Web", "Software Engineering", "AI", "Mobile", "DevOps"];
 
-const CreatePost = () => {
+const Post = () => {
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setEditShowModal] = useState(false);
   const [editorContent, setEditorContent] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(5);
+  const [selectedPost, setSelectedPost] = useState<IPost | null>(null);
+  const { user } = useUser();
 
-  const { mutate: handlePostCreate } = usePostCreation();
-  const { data: posts } = useGetPosts();
+  const { data: posts, refetch: postRefetch } = useUserPosts(
+    user?._id as string
+  );
+  console.log(posts);
+  const { mutate: handlePostCreate } = usePostCreation(postRefetch);
+  const { mutate: handlePostUpdate } = usePostUpdate(postRefetch);
+  const { mutate: handlePostDelete } = usePostDelete(postRefetch);
+  const [tags, setTags] = useState<string[]>(["tech"]);
 
   const handleEdit = (post: IPost) => {
-    setEditorContent(post.content);
-    setShowModal(true);
+    setSelectedPost(post);
+    setEditShowModal(true);
   };
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex justify-end items-center mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-semibold">My Posts</h1>
         <button
           onClick={() => {
             setShowModal(true);
@@ -66,7 +83,7 @@ const CreatePost = () => {
         currentPage={currentPage}
         postsPerPage={postsPerPage}
         onEdit={handleEdit}
-        onDelete={() => {}}
+        onDelete={handlePostDelete}
       />
 
       <div className="mt-4">
@@ -93,9 +110,22 @@ const CreatePost = () => {
         setEditorContent={setEditorContent}
         handlePostCreate={handlePostCreate}
         categories={categories}
+        tags={tags}
+        setTags={setTags}
+      />
+      <PostEditModal
+        showModal={showEditModal}
+        setShowModal={setEditShowModal}
+        editorContent={editorContent}
+        post={selectedPost}
+        setEditorContent={setEditorContent}
+        handlePostEdit={handlePostUpdate}
+        categories={categories}
+        tags={tags}
+        setTags={setTags}
       />
     </div>
   );
 };
 
-export default CreatePost;
+export default Post;

@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
-import { useUserRegistration } from "@/hooks/auth.hook";
+import { registerUser } from "@/hooks/auth.hook";
+import { useRouter } from "next/navigation";
 
 type RegisterFormData = {
   fname: string;
@@ -17,6 +18,7 @@ type RegisterFormData = {
 };
 
 const Register = () => {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -28,14 +30,16 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const password = watch("password");
-  const { mutate: handleUserRegistration } = useUserRegistration();
 
-  const onSubmit = (data: RegisterFormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     data.profilePic =
       "https://i.ibb.co.com/bdfpZcG/blank-profile-picture-973460-960-720.png";
     setLoading(true);
-    setTimeout(() => {
-      handleUserRegistration(data);
+    setTimeout(async () => {
+      const result = await registerUser(data);
+      if (result.success) {
+        router.push("/login");
+      }
       setLoading(false);
     }, 2000);
   };

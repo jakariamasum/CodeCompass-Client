@@ -46,6 +46,7 @@ const UserProfile = () => {
   };
 
   const onSubmit = (data: any) => {
+    console.log(data);
     setIsEditing(false);
   };
 

@@ -1,10 +1,12 @@
 "use client";
+import { useUser } from "@/context/user.provider";
 import Link from "next/link";
 import React, { useState } from "react";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user } = useUser();
 
   const hrefggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -18,27 +20,24 @@ const Header = () => {
         </Link>
 
         <nav className="hidden md:flex space-x-6">
-          <Link href="/" className="hover:text-yellow-500">
+          <Link href="/" className="hover:text-[#009CA6]">
             Home
           </Link>
-          <Link href="/categories" className="hover:text-yellow-500">
-            Categories
-          </Link>
-          <Link href="/premium" className="hover:text-yellow-500">
-            Premium
-          </Link>
-          <Link href="/about" className="hover:text-yellow-500">
+
+          <Link href="/about" className="hover:text-[#009CA6]">
             About Us
           </Link>
-          <Link href="/contact" className="hover:text-yellow-500">
+          <Link href="/contact" className="hover:text-[#009CA6]">
             Contact
           </Link>
-          <Link
-            href="/login"
-            className="hover:text-yellow-500 bg-yellow-500 px-4 py-2 rounded hover:bg-gray-500"
-          >
-            Login
-          </Link>
+          {!user && (
+            <Link
+              href="/login"
+              className="hover:text-[#009CA6] bg-[#009CA6] px-4 py-2 rounded hover:bg-gray-500"
+            >
+              Login
+            </Link>
+          )}
         </nav>
 
         <div className="md:hidden flex items-center">
@@ -56,42 +55,42 @@ const Header = () => {
             <Link
               href="/"
               onClick={hrefggleMenu}
-              className="hover:text-yellow-500"
+              className="hover:text-[#009CA6]"
             >
               Home
             </Link>
             <Link
               href="/categories"
               onClick={hrefggleMenu}
-              className="hover:text-yellow-500"
+              className="hover:text-[#009CA6]"
             >
               Categories
             </Link>
             <Link
               href="/premium"
               onClick={hrefggleMenu}
-              className="hover:text-yellow-500"
+              className="hover:text-[#009CA6]"
             >
               Premium
             </Link>
             <Link
               href="/about"
               onClick={hrefggleMenu}
-              className="hover:text-yellow-500"
+              className="hover:text-[#009CA6]"
             >
               About Us
             </Link>
             <Link
               href="/contact"
               onClick={hrefggleMenu}
-              className="hover:text-yellow-500"
+              className="hover:text-[#009CA6]"
             >
               Contact
             </Link>
             <Link
               href="/login"
               onClick={hrefggleMenu}
-              className="hover:text-yellow-500 bg-yellow-500 px-4 py-2 rounded"
+              className="hover:text-[#009CA6] bg-[#009CA6] px-4 py-2 rounded"
             >
               Login
             </Link>

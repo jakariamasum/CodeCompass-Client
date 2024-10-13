@@ -22,6 +22,7 @@ const Post = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(5);
   const [selectedPost, setSelectedPost] = useState<IPost | null>(null);
+  const [tags, setTags] = useState<string[]>(["tech"]);
 
   const { data: posts, refetch: postRefetch } = useGetPosts();
   const { mutate: handlePostCreate } = usePostCreation(postRefetch);
@@ -91,6 +92,8 @@ const Post = () => {
         setEditorContent={setEditorContent}
         handlePostCreate={handlePostCreate}
         categories={categories}
+        tags={tags}
+        setTags={setTags}
       />
       <PostEditModal
         showModal={showEditModal}
@@ -100,6 +103,8 @@ const Post = () => {
         setEditorContent={setEditorContent}
         handlePostEdit={handlePostUpdate}
         categories={categories}
+        tags={tags}
+        setTags={setTags}
       />
     </div>
   );

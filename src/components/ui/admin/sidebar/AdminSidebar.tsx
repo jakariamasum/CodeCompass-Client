@@ -5,7 +5,7 @@ import { IoIosCloseCircle } from "react-icons/io";
 import { MdOutlineDashboard, MdPayment } from "react-icons/md";
 import styles from "./Style.module.css";
 import { usePathname } from "next/navigation";
-import { FaBars, FaUsers, FaUserShield } from "react-icons/fa";
+import { FaBars, FaUsers } from "react-icons/fa";
 import { BsStack } from "react-icons/bs";
 
 const AdminSidebar: React.FC = () => {

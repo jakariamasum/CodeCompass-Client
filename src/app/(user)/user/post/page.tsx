@@ -2,14 +2,15 @@
 import { useState } from "react";
 import { IPost } from "@/types";
 import {
-  useGetPosts,
   usePostCreation,
   usePostDelete,
   usePostUpdate,
+  useUserPosts,
 } from "@/hooks/post.hook";
 import { PostList } from "@/components/ui/lists/posts.list";
 import { PostModal } from "@/components/ui/modals/post.create";
 import PostEditModal from "@/components/ui/modals/post.edit";
+import { useUser } from "@/context/user.provider";
 
 const categories = ["Web", "Software Engineering", "AI", "Mobile", "DevOps"];
 
@@ -22,8 +23,12 @@ const Post = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(5);
   const [selectedPost, setSelectedPost] = useState<IPost | null>(null);
+  const { user } = useUser();
 
-  const { data: posts, refetch: postRefetch } = useGetPosts();
+  const { data: posts, refetch: postRefetch } = useUserPosts(
+    user?._id as string
+  );
+  console.log(posts);
   const { mutate: handlePostCreate } = usePostCreation(postRefetch);
   const { mutate: handlePostUpdate } = usePostUpdate(postRefetch);
   const { mutate: handlePostDelete } = usePostDelete(postRefetch);

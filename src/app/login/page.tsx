@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
-import { useUserLogin } from "@/hooks/auth.hook";
+import { loginUser } from "@/hooks/auth.hook";
+import { useRouter } from "next/navigation";
 
 type LoginFormData = {
   email: string;
@@ -21,14 +22,31 @@ const Login = () => {
   } = useForm<LoginFormData>();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { mutate: handleUserLogin } = useUserLogin();
+  const router = useRouter();
 
-  const onSubmit = (data: LoginFormData) => {
+  const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
-    setTimeout(() => {
-      handleUserLogin(data);
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    try {
+      const result = await loginUser({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (result.success) {
+        if (result.data.role === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/user");
+        }
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   return (
