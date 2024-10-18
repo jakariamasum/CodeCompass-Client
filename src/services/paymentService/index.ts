@@ -21,13 +21,16 @@ export const createPayment = async (paymentData: FieldValues) => {
 export const handlePurchasePremium = async () => {
   const stripe = await stripePromise;
 
-  const response = await fetch("http://localhost:5000/api/v1/payments", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ priceId: "bd" }),
-  });
+  const response = await fetch(
+    "https://code-compass-server.vercel.app/api/v1/payments",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ priceId: "bd" }),
+    }
+  );
 
   const session = await response.json();
 

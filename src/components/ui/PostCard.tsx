@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { motion } from "framer-motion";
 
-const PostCard = ({ post }) => {
+const PostCard = ({ post }: { post: any }) => {
   return (
     <motion.div
       className="bg-white shadow-lg rounded-lg p-6"

@@ -12,7 +12,8 @@ export interface CustomJwtPayload extends JwtPayload {
   role: string;
 }
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1";
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://code-compass-server.vercel.app/api/v1";
 
 export const registerUser = async (userData: FieldValues) => {
   try {
@@ -85,4 +86,8 @@ export const getCurrentUser = async () => {
   }
 
   return decodedToken;
+};
+
+export const logOut = async () => {
+  cookies().delete("accessToken");
 };

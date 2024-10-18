@@ -3,9 +3,12 @@ import Image from "next/image";
 import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 import { TbHeartHandshake } from "react-icons/tb";
 import { useUser } from "@/context/user.provider";
+import { logout } from "@/app";
+import { useRouter } from "next/navigation";
 
 const Profile = () => {
   const { user } = useUser();
+  const router = useRouter();
   const links = [
     {
       label: "Profile",
@@ -22,7 +25,8 @@ const Profile = () => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
+    logout();
+    router.push("/");
   };
 
   return (
