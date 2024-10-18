@@ -5,7 +5,7 @@ export interface IUser {
   role: string;
   email: string;
   active: string;
-  verified: boolean;
+  verified: string;
   following: number[];
   followers: number[];
   profilePic?: string;

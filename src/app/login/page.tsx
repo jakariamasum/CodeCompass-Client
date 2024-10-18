@@ -1,6 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
@@ -14,20 +13,31 @@ type LoginFormData = {
   password: string;
 };
 
+type RecoveryFormData = {
+  email: string;
+};
+
 const Login = () => {
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
+    register: loginRegister,
+    handleSubmit: handleLoginSubmit,
+    formState: { errors: loginErrors },
   } = useForm<LoginFormData>();
+
+  const {
+    register: recoveryRegister,
+    handleSubmit: handleRecoverySubmit,
+    formState: { errors: recoveryErrors },
+  } = useForm<RecoveryFormData>();
+
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+  const [recoveryMessage, setRecoveryMessage] = useState("");
   const router = useRouter();
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onLoginSubmit = async (data: LoginFormData) => {
     setLoading(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     try {
       const result = await loginUser({
@@ -49,8 +59,41 @@ const Login = () => {
     }
   };
 
+  const onRecoverySubmit = async (data: RecoveryFormData) => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/v1/users/recover/password/kk",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: data.email }),
+        }
+      );
+
+      const result = await response.json();
+      console.log(response);
+
+      if (response.ok) {
+        setRecoveryMessage(
+          "If an account exists for this email, you will receive a recovery link shortly."
+        );
+      } else {
+        throw new Error(result.message || "An error occurred");
+      }
+    } catch (error) {
+      console.log("Recovery error:", error);
+      setRecoveryMessage("An error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex items-center justify-center h-screen text-black">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 text-black">
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -58,64 +101,124 @@ const Login = () => {
         className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full"
       >
         <h2 className="text-2xl font-bold text-center mb-6">
-          Login to Your Account
+          {isRecoveryMode ? "Recover Your Password" : "Login to Your Account"}
         </h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium">Email</label>
-            <input
-              {...register("email", { required: "Email is required" })}
-              className="w-full border border-gray-300 rounded-lg p-2"
-              placeholder="Enter your email"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="relative">
-            <label className="block text-sm font-medium">Password</label>
-            <input
-              {...register("password", { required: "Password is required" })}
-              type={showPassword ? "text" : "password"}
-              className="w-full border border-gray-300 rounded-lg p-2"
-              placeholder="Enter your password"
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password.message}</p>
-            )}
-            <div
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-700 cursor-pointer"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <Link href="#" className="text-blue-500 hover:underline text-sm">
-              Forgot Password?
-            </Link>
-          </div>
-
-          <motion.button
-            type="submit"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`w-full py-2 rounded-lg text-white ${
-              loading ? "bg-gray-400 cursor-not-allowed" : "bg-teal-500"
-            }`}
-            disabled={loading}
+        {isRecoveryMode ? (
+          <form
+            onSubmit={handleRecoverySubmit(onRecoverySubmit)}
+            className="space-y-4"
           >
-            {loading ? "Logging in..." : "Login"}
-          </motion.button>
-        </form>
+            <div>
+              <label className="block text-sm font-medium mb-1">Email</label>
+              <input
+                {...recoveryRegister("email", {
+                  required: "Email is required",
+                })}
+                className="w-full border border-gray-300 rounded-lg p-2"
+                placeholder="Enter your email"
+              />
+              {recoveryErrors.email && (
+                <p className="text-red-500 text-sm mt-1">
+                  {recoveryErrors.email.message}
+                </p>
+              )}
+            </div>
+
+            {recoveryMessage && (
+              <p className="text-sm text-green-600 mt-2">{recoveryMessage}</p>
+            )}
+
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`w-full py-2 rounded-lg text-white ${
+                loading ? "bg-gray-400 cursor-not-allowed" : "bg-teal-500"
+              }`}
+              disabled={loading}
+            >
+              {loading ? "Sending Recovery Email..." : "Recover Password"}
+            </motion.button>
+
+            <button
+              type="button"
+              className="w-full text-teal-500 hover:underline mt-2"
+              onClick={() => setIsRecoveryMode(false)}
+            >
+              Back to Login
+            </button>
+          </form>
+        ) : (
+          <form
+            onSubmit={handleLoginSubmit(onLoginSubmit)}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-sm font-medium mb-1">Email</label>
+              <input
+                {...loginRegister("email", { required: "Email is required" })}
+                className="w-full border border-gray-300 rounded-lg p-2"
+                placeholder="Enter your email"
+              />
+              {loginErrors.email && (
+                <p className="text-red-500 text-sm mt-1">
+                  {loginErrors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-medium mb-1">Password</label>
+              <input
+                {...loginRegister("password", {
+                  required: "Password is required",
+                })}
+                type={showPassword ? "text" : "password"}
+                className="w-full border border-gray-300 rounded-lg p-2"
+                placeholder="Enter your password"
+              />
+              {loginErrors.password && (
+                <p className="text-red-500 text-sm mt-1">
+                  {loginErrors.password.message}
+                </p>
+              )}
+              <div
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-700 cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <button
+                type="button"
+                className="text-teal-500 hover:underline text-sm"
+                onClick={() => setIsRecoveryMode(true)}
+              >
+                Forgot Password?
+              </button>
+            </div>
+
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`w-full py-2 rounded-lg text-white ${
+                loading ? "bg-gray-400 cursor-not-allowed" : "bg-teal-500"
+              }`}
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Login"}
+            </motion.button>
+          </form>
+        )}
 
         <div className="mt-4 text-center">
           <p className="text-sm">
             Don't have an account?{" "}
-            <Link href="/register" className="text-blue-500 hover:underline">
+            <Link href="/register" className="text-teal-500 hover:underline">
               Sign up
             </Link>
           </p>

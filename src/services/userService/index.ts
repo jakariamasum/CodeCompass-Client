@@ -1,4 +1,5 @@
 import axiosInstance from "@/lib/AxiosInstance";
+import { FieldValues } from "react-hook-form";
 
 export const getAllUsers = async () => {
   try {
@@ -11,9 +12,9 @@ export const getAllUsers = async () => {
   }
 };
 
-export const updateUser = async (id: string) => {
+export const updateUser = async (id: string, userData: FieldValues) => {
   try {
-    const { data } = await axiosInstance.put(`/users/${id}`);
+    const { data } = await axiosInstance.put(`/users/profile/${id}`, userData);
     return data;
   } catch (error: any) {
     console.error("Error updating user:", error);
@@ -32,6 +33,19 @@ export const deleteUser = async (id: string) => {
     throw new Error(
       error.response?.data?.message ||
         "An error occurred while deleting the user"
+    );
+  }
+};
+
+export const getSingleUser = async (email: string) => {
+  try {
+    const { data } = await axiosInstance.get(`/users/${email}`);
+    return data.data;
+  } catch (error: any) {
+    console.error("Error getting user:", error);
+    throw new Error(
+      error.response?.data?.message ||
+        "An error occurred while getting the user"
     );
   }
 };
