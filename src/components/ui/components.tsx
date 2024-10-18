@@ -29,6 +29,27 @@ export const CardTitle: React.FC<CardProps> = ({
   ...props
 }) => <h2 className={`text-xl font-semibold ${className}`} {...props} />;
 
+export const CardDescription: React.FC<CardProps> = ({
+  className = "",
+  ...props
+}) => {
+  return (
+    <p className={`text-sm text-gray-600 mt-2 ${className}`} {...props}></p>
+  );
+};
+
+export const CardFooter: React.FC<CardProps> = ({
+  className = "",
+  ...props
+}) => {
+  return (
+    <div
+      className={`px-6 py-4 bg-gray-50 border-t border-gray-200 ${className}`}
+      {...props}
+    ></div>
+  );
+};
+
 // Avatar component with TypeScript
 export const Avatar: React.FC<CardProps> = ({ className = "", ...props }) => (
   <div className={`relative inline-block ${className}`} {...props} />

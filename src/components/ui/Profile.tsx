@@ -23,6 +23,7 @@ const Profile = () => {
       ),
     },
   ];
+  console.log(user);
 
   const handleLogout = () => {
     logout();

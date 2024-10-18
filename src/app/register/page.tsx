@@ -37,6 +37,7 @@ const Register = () => {
     setLoading(true);
     setTimeout(async () => {
       const result = await registerUser(data);
+      console.log(result);
       if (result.success) {
         router.push("/login");
       }

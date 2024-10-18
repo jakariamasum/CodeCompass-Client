@@ -7,6 +7,9 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
 import { loginUser } from "@/hooks/auth.hook";
 import { useRouter } from "next/navigation";
+import { getCurrentUser } from "..";
+import { useUser } from "@/context/user.provider";
+import { IUser } from "@/types";
 
 type LoginFormData = {
   email: string;
@@ -35,6 +38,7 @@ const Login = () => {
   const [isRecoveryMode, setIsRecoveryMode] = useState(false);
   const [recoveryMessage, setRecoveryMessage] = useState("");
   const router = useRouter();
+  const { setUser } = useUser();
 
   const onLoginSubmit = async (data: LoginFormData) => {
     setLoading(true);
@@ -46,6 +50,8 @@ const Login = () => {
       });
 
       if (result.success) {
+        const currentUser = await getCurrentUser();
+        setUser(currentUser as IUser);
         if (result.data.role === "admin") {
           router.push("/admin");
         } else {
