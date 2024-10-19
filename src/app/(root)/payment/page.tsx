@@ -27,7 +27,7 @@ export default function PremiumSubscription() {
     const stripe = await stripePromise;
 
     const response = await fetch(
-      "http://localhost:5000/api/v1/payment/checkout",
+      "https://code-compass-server.vercel.app/api/v1/payment/checkout",
       {
         method: "POST",
         headers: {
