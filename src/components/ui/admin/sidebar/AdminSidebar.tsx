@@ -2,11 +2,17 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { IoIosCloseCircle } from "react-icons/io";
-import { MdOutlineDashboard, MdPayment } from "react-icons/md";
+import {
+  MdAdminPanelSettings,
+  MdOutlineDashboard,
+  MdPayment,
+} from "react-icons/md";
 import styles from "./Style.module.css";
 import { usePathname } from "next/navigation";
 import { FaBars, FaUsers } from "react-icons/fa";
 import { BsStack } from "react-icons/bs";
+import { BiHome } from "react-icons/bi";
+import Profile from "../../Profile";
 
 const AdminSidebar: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -63,6 +69,9 @@ const AdminSidebar: React.FC = () => {
               <IoIosCloseCircle className="text-3xl" />
             </button>
           </div>
+          <div>
+            <Profile />
+          </div>
 
           {/* Sidebar Links */}
           <p className="px-3 my-2">Main</p>
@@ -96,6 +105,20 @@ const AdminSidebar: React.FC = () => {
           </div>
           <div>
             <Link
+              href="/admin/admins"
+              passHref
+              className={`flex items-center py-3 px-4 font-semibold ${
+                pathname === "/admin/admins"
+                  ? "bg-[#dfeaff]"
+                  : "text-gray-600 hover:bg-[#f5f8fe]"
+              }`}
+            >
+              <MdAdminPanelSettings size={18} />
+              <span className="ml-4">Admins</span>
+            </Link>
+          </div>
+          <div>
+            <Link
               href="/admin/posts"
               passHref
               className={`flex items-center py-3 px-4 font-semibold ${
@@ -108,6 +131,7 @@ const AdminSidebar: React.FC = () => {
               <span className="ml-4">Posts</span>
             </Link>
           </div>
+
           <div>
             <Link
               href="/admin/payments"
@@ -120,6 +144,20 @@ const AdminSidebar: React.FC = () => {
             >
               <MdPayment size={18} />
               <span className="ml-4">Payments</span>
+            </Link>
+          </div>
+
+          <p className="px-3 my-2">Others</p>
+
+          <div>
+            <Link
+              href="/"
+              passHref
+              className={`flex items-center py-3 px-4 font-semibold text-gray-600 hover:bg-[#f5f8fe]"
+              }`}
+            >
+              <BiHome size={18} />
+              <span className="ml-4">Home</span>
             </Link>
           </div>
         </div>

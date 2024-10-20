@@ -1,13 +1,21 @@
 "use client";
-import { useGetUsers, useUserDelete, useUserToogle } from "@/hooks/user.hook";
+import {
+  useGetUsers,
+  useUserDelete,
+  useUserRoleToogle,
+  useUserToogle,
+} from "@/hooks/user.hook";
 import { IUser } from "@/types";
+import { AiOutlineUserAdd } from "react-icons/ai";
 import { BiBlock, BiTrash } from "react-icons/bi";
+import { FaUserMinus } from "react-icons/fa";
 import { FcCheckmark } from "react-icons/fc";
 
 const TableRow = ({ role }: { role: string }) => {
   const { data: users, refetch: userRefetch, isLoading } = useGetUsers();
   const { mutate: handleUserDelete } = useUserDelete(userRefetch);
   const { mutate: handleToogle } = useUserToogle(userRefetch);
+  const { mutate: handleToogleRole } = useUserRoleToogle(userRefetch);
   const userss = users?.filter((user: IUser) => user.role === role) || [];
   if (isLoading) {
     return (
@@ -59,11 +67,32 @@ const TableRow = ({ role }: { role: string }) => {
             )}
             <button
               onClick={() => handleUserDelete(user._id)}
-              className="text-red-600 hover:text-red-900"
+              className="text-red-600 hover:text-red-900 mr-4"
               aria-label={`Delete ${user?.fname}`}
             >
               <BiTrash className="h-5 w-5" />
             </button>
+            {user.role === "admin" ? (
+              <>
+                <button
+                  onClick={() => handleToogleRole(user._id)}
+                  className="hover:text-[#009CA6] text-red-500"
+                  aria-label={`Remove admin role from ${user.fname}`}
+                >
+                  <FaUserMinus className="h-5 w-5" />
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleToogleRole(user._id)}
+                  className="hover:text-[#009CA6] text-green-800"
+                  aria-label={`Add admin role from ${user.fname}`}
+                >
+                  <AiOutlineUserAdd className="h-5 w-5" />
+                </button>
+              </>
+            )}
           </td>
         </tr>
       ))}

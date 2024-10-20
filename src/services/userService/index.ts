@@ -36,6 +36,18 @@ export const toogleUser = async (id: string) => {
     );
   }
 };
+export const toogleUserRole = async (id: string) => {
+  try {
+    const { data } = await axiosInstance.put(`/users/role/${id}`);
+    return data;
+  } catch (error: any) {
+    console.error("Error updating user role:", error);
+    throw new Error(
+      error.response?.data?.message ||
+        "An error occurred while updating the user role"
+    );
+  }
+};
 export const deleteUser = async (id: string) => {
   try {
     const { data } = await axiosInstance.delete(`/users/${id}`);

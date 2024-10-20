@@ -3,6 +3,7 @@ import {
   getAllUsers,
   getSingleUser,
   toogleUser,
+  toogleUserRole,
   updateUser,
 } from "@/services/userService";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -38,6 +39,19 @@ export const useUserToogle = (refetch: () => void) => {
     mutationFn: async (id) => await toogleUser(id),
     onSuccess: () => {
       toast.success("User updated successfully.");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+};
+export const useUserRoleToogle = (refetch: () => void) => {
+  return useMutation<any, Error, string>({
+    mutationKey: ["USER_ROLE_TOOGlE"],
+    mutationFn: async (id) => await toogleUserRole(id),
+    onSuccess: () => {
+      toast.success("User role updated!!");
       refetch();
     },
     onError: (error) => {
