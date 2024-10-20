@@ -2,6 +2,7 @@ import {
   deleteUser,
   getAllUsers,
   getSingleUser,
+  toogleUser,
   updateUser,
 } from "@/services/userService";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -22,6 +23,19 @@ export const useUserUpdate = (refetch: () => void) => {
   return useMutation<any, Error, UpdateUserData>({
     mutationKey: ["USER_UPDATE"],
     mutationFn: async ({ id, userData }) => await updateUser(id, userData),
+    onSuccess: () => {
+      toast.success("User updated successfully.");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+};
+export const useUserToogle = (refetch: () => void) => {
+  return useMutation<any, Error, string>({
+    mutationKey: ["USER_TOOGlE"],
+    mutationFn: async (id) => await toogleUser(id),
     onSuccess: () => {
       toast.success("User updated successfully.");
       refetch();

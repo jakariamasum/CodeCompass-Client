@@ -24,6 +24,18 @@ export const updateUser = async (id: string, userData: FieldValues) => {
     );
   }
 };
+export const toogleUser = async (id: string) => {
+  try {
+    const { data } = await axiosInstance.put(`/users/${id}`);
+    return data;
+  } catch (error: any) {
+    console.error("Error updating user:", error);
+    throw new Error(
+      error.response?.data?.message ||
+        "An error occurred while updating the user"
+    );
+  }
+};
 export const deleteUser = async (id: string) => {
   try {
     const { data } = await axiosInstance.delete(`/users/${id}`);

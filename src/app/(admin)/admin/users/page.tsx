@@ -1,13 +1,13 @@
 "use client";
-import { useGetUsers, useUserDelete, useUserUpdate } from "@/hooks/user.hook";
+import { useGetUsers, useUserDelete, useUserToogle } from "@/hooks/user.hook";
 import { IUser } from "@/types";
 import { BiBlock, BiTrash } from "react-icons/bi";
 import { FcApprove } from "react-icons/fc";
 
 const UserManagement = () => {
   const { data: users, refetch: userRefetch } = useGetUsers();
-  const { mutate: handleUserUpdate } = useUserUpdate(userRefetch);
   const { mutate: handleUserDelete } = useUserDelete(userRefetch);
+  const { mutate: handleToogle } = useUserToogle(userRefetch);
 
   return (
     <div className="bg-white p-4 rounded shadow mb-5">
@@ -51,7 +51,7 @@ const UserManagement = () => {
                 <td className="px-6 py-4  whitespace-nowrap text-left text-sm font-medium">
                   {user?.active ? (
                     <button
-                      onClick={() => handleUserUpdate(user._id)}
+                      onClick={() => handleToogle(user._id)}
                       className="text-indigo-600 hover:text-indigo-900 mr-4"
                       aria-label={`Edit ${user?.fname}`}
                     >
@@ -59,7 +59,7 @@ const UserManagement = () => {
                     </button>
                   ) : (
                     <button
-                      onClick={() => handleUserUpdate(user._id)}
+                      onClick={() => handleToogle(user._id)}
                       className="text-indigo-600 hover:text-indigo-900 mr-4"
                       aria-label={`Edit ${user?.fname}`}
                     >
