@@ -1,6 +1,6 @@
 import TableRow from "@/components/ui/admin/TableRow";
 
-const UserManagement = () => {
+const AdminManagement = () => {
   return (
     <div className="bg-white p-4 rounded shadow mb-5">
       <div className="overflow-x-auto">
@@ -24,11 +24,11 @@ const UserManagement = () => {
               </th>
             </tr>
           </thead>
-          <TableRow role="user" />
+          <TableRow role="admin" />
         </table>
       </div>
     </div>
   );
 };
 
-export default UserManagement;
+export default AdminManagement;

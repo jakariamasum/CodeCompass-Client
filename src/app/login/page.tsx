@@ -52,7 +52,7 @@ const Login = () => {
       if (result.success) {
         const currentUser = await getCurrentUser();
         setUser(currentUser as IUser);
-        if (result.data.role === "admin") {
+        if (currentUser?.role === "admin") {
           router.push("/admin");
         } else {
           router.push("/user");
