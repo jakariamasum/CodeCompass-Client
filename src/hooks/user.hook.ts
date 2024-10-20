@@ -4,6 +4,7 @@ import {
   getSingleUser,
   toogleUser,
   toogleUserRole,
+  toogleUserVerify,
   updateUser,
 } from "@/services/userService";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -52,6 +53,20 @@ export const useUserRoleToogle = (refetch: () => void) => {
     mutationFn: async (id) => await toogleUserRole(id),
     onSuccess: () => {
       toast.success("User role updated!!");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+};
+export const useUserVerifyToogle = (refetch: () => void) => {
+  return useMutation<any, Error, UpdateUserData>({
+    mutationKey: ["USER_VERIFY_TOOGlE"],
+    mutationFn: async ({ id, userData }) =>
+      await toogleUserVerify(id, userData),
+    onSuccess: () => {
+      toast.success("User verification updated!!");
       refetch();
     },
     onError: (error) => {

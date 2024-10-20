@@ -6,6 +6,7 @@ import {
   MdAdminPanelSettings,
   MdOutlineDashboard,
   MdPayment,
+  MdVerifiedUser,
 } from "react-icons/md";
 import styles from "./Style.module.css";
 import { usePathname } from "next/navigation";
@@ -129,6 +130,20 @@ const AdminSidebar: React.FC = () => {
             >
               <BsStack size={18} />
               <span className="ml-4">Posts</span>
+            </Link>
+          </div>
+          <div>
+            <Link
+              href="/admin/verify"
+              passHref
+              className={`flex items-center py-3 px-4 font-semibold ${
+                pathname === "/admin/verify"
+                  ? "bg-[#dfeaff]"
+                  : "text-gray-600 hover:bg-[#f5f8fe]"
+              }`}
+            >
+              <MdVerifiedUser size={18} />
+              <span className="ml-4">Verification</span>
             </Link>
           </div>
 

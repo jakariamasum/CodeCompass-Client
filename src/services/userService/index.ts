@@ -48,6 +48,21 @@ export const toogleUserRole = async (id: string) => {
     );
   }
 };
+export const toogleUserVerify = async (id: string, userData: FieldValues) => {
+  try {
+    const { data } = await axiosInstance.put(
+      `/users/role/verify/${id}`,
+      userData
+    );
+    return data;
+  } catch (error: any) {
+    console.error("Error verification user:", error);
+    throw new Error(
+      error.response?.data?.message ||
+        "An error occurred while verifying the user"
+    );
+  }
+};
 export const deleteUser = async (id: string) => {
   try {
     const { data } = await axiosInstance.delete(`/users/${id}`);
