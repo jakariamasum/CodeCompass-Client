@@ -26,4 +26,11 @@ body {
   }
 }
 
+.custom-sun-editor .sun-editor .se-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: white;
+}
+
 /* bg-[#009CA6] */

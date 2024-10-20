@@ -38,7 +38,9 @@ export const PostModal = ({
     data.content = editorContent;
     data.user = user?._id as string;
     data.tags = tags;
+    console.log(data);
     handlePostCreate(data);
+    setTags([]);
     reset();
     setShowModal(false);
   };
@@ -96,7 +98,12 @@ export const PostModal = ({
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium">Content</label>
+            <label className="block text-sm font-medium">
+              Tags{" "}
+              <span className="text-gray-500 text-sm">
+                (press enter for add)
+              </span>
+            </label>
             <Tag value={tags} onChange={setTags} />
           </div>
 
