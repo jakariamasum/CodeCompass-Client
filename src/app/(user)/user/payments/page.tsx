@@ -19,7 +19,7 @@ const displayFields: (keyof IPayment)[] = [
 
 export default function PaymentManagement() {
   const { user } = useUser();
-  const { data: payments } = useUserPayments(user?._id as string);
+  const { data: payments } = useUserPayments(user?.email as string);
   const [sortField, setSortField] = useState<keyof IPayment>("_id");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [filter, setFilter] = useState("");
