@@ -5,6 +5,7 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import moment from "moment";
+import { useUser } from "@/context/user.provider";
 
 type CommentSectionProps = {
   postId: string;
@@ -41,6 +42,7 @@ export default function CommentSection({
   currentUser,
   onAddComment,
 }: CommentSectionProps) {
+  const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register, handleSubmit, reset } = useForm();
 
@@ -76,9 +78,9 @@ export default function CommentSection({
                   <h3 className="font-semibold">{comment?.user?.fname}</h3>
                   <time
                     className="text-sm text-gray-500"
-                    dateTime={comment?.createdAt}
+                    dateTime={comment.createdAt}
                   >
-                    {moment(comment.createdAt).format("MMM d, yyyy")}
+                    {moment(comment.createdAt).format("MMM Do, YYYY")}
                   </time>
                 </div>
                 <p className="mt-1 text-gray-700">{comment?.content}</p>
@@ -92,34 +94,38 @@ export default function CommentSection({
         </p>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-4">
-        <div>
-          <label
-            htmlFor="comment"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Add a comment
-          </label>
-          <div className="mt-1 flex items-start space-x-4">
-            <Avatar
-              src={currentUser?.profilePic || ""}
-              alt={currentUser?.fname}
-            />
-            <textarea
-              id="comment"
-              rows={3}
-              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-              placeholder="Write your comment here..."
-              {...register("content")}
-            />
+      {user ? (
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-4">
+          <div>
+            <label
+              htmlFor="comment"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Add a comment
+            </label>
+            <div className="mt-1 flex items-start space-x-4">
+              <Avatar
+                src={currentUser?.profilePic || ""}
+                alt={currentUser?.fname}
+              />
+              <textarea
+                id="comment"
+                rows={3}
+                className="shadow-sm focus:ring-[#009CA6] focus:border-[#009CA6] block w-full sm:text-sm border-gray-300 rounded-md"
+                placeholder="Write your comment here..."
+                {...register("content")}
+              />
+            </div>
           </div>
-        </div>
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Posting..." : "Post Comment"}
-          </Button>
-        </div>
-      </form>
+          <div className="flex justify-end ">
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Posting..." : "Post Comment"}
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <p className="text-[#009CA6] italic">Please login for comment</p>
+      )}
     </div>
   );
 }
