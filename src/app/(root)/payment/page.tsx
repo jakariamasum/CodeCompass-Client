@@ -16,6 +16,7 @@ import {
   FaUnlockAlt,
 } from "react-icons/fa";
 import { useUser } from "@/context/user.provider";
+import Link from "next/link";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -111,12 +112,20 @@ export default function PremiumSubscription() {
         </CardContent>
 
         <CardFooter className="p-6 border-t text-center bg-gradient-to-r from-purple-600 to-[#009CA6]">
-          <Button
-            onClick={handleCheckout}
-            className="w-full py-4 text-lg bg-white text-[#009CA6] hover:bg-gray-100 font-semibold rounded-md shadow-md transition duration-300 ease-in-out"
-          >
-            Subscribe Now
-          </Button>
+          {user ? (
+            <Button
+              onClick={handleCheckout}
+              className="w-full py-4 text-lg  hover:text-black hover:bg-gray-100 font-semibold rounded-md shadow-md transition duration-300 ease-in-out"
+            >
+              Subscribe Now
+            </Button>
+          ) : (
+            <Link href={"/login"}>
+              <Button className="w-full py-4 text-lg  hover:text-black hover:bg-gray-100 font-semibold rounded-md shadow-md transition duration-300 ease-in-out">
+                Login before pay
+              </Button>
+            </Link>
+          )}
           <p className="text-sm text-gray-300 mt-2">
             Cancel anytime, no hidden fees.
           </p>
