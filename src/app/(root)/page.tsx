@@ -22,13 +22,37 @@ type Post = {
   createdAt: string;
 };
 
+const categories = [
+  "Web Development",
+  "Software Engineering",
+  "Artificial Intelligence (AI)",
+  "Mobile Development",
+  "DevOps",
+  "Cloud Computing",
+  "Cybersecurity",
+  "Data Science",
+  "Machine Learning",
+  "Blockchain",
+  "Tech News",
+  "Programming Languages",
+  "UI/UX Design",
+  "Gadgets and Devices",
+  "Tech Reviews",
+  "Productivity Tools",
+  "Tech Tutorials",
+  "Open Source",
+  "Networking",
+  "Tech Trends",
+];
+
 export default function TechTipsFeed() {
   const { data: allPosts, isLoading } = useGetPosts();
   const [displayedPosts, setDisplayedPosts] = useState<Post[]>([]);
   const [hasMore, setHasMore] = useState(true);
-  const [sort, setSort] = useState<"latest" | "popular" | "controversial">(
+  const [sort, setSort] = useState<"latest" | (typeof categories)[number]>(
     "latest"
   );
+
   const [search, setSearch] = useState("");
   const postsPerPage = 10;
   const observer = useRef<IntersectionObserver | null>(null);
@@ -65,21 +89,13 @@ export default function TechTipsFeed() {
     );
 
     const sortedPosts = [...filteredPosts];
-    switch (sort) {
-      case "latest":
-        sortedPosts.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        break;
-      case "popular":
-        sortedPosts.sort((a, b) => b.likes - a.likes);
-        break;
-      case "controversial":
-        sortedPosts.sort(
-          (a, b) => b.likes + b.dislikes - (a.likes + a.dislikes)
-        );
-        break;
+    if (sort === "latest") {
+      sortedPosts.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    } else if (categories.includes(sort)) {
+      sortedPosts.sort((a) => (a.category === sort ? -1 : 1));
     }
 
     return sortedPosts;
@@ -140,16 +156,15 @@ export default function TechTipsFeed() {
             <div className="relative">
               <select
                 value={sort}
-                onChange={(e) =>
-                  setSort(
-                    e.target.value as "latest" | "popular" | "controversial"
-                  )
-                }
-                className="appearance-none w-full sm:w-auto p-3 pr-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009CA6]  bg-white"
+                onChange={(e) => setSort(e.target.value)}
+                className="appearance-none w-full sm:w-auto p-3 pr-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009CA6] bg-white"
               >
-                <option value="latest">Latest</option>
-                <option value="popular">Most Popular</option>
-                <option value="controversial">Controversial</option>
+                <option value="">Select Category</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
               </select>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
