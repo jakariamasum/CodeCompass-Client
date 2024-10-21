@@ -15,8 +15,8 @@ const Header = () => {
   return (
     <header className="bg-gray-800 text-white">
       <div className="container mx-auhref px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold">
-          Tech Tips Hub
+        <Link href="/" className="text-2xl font-bold text-[#009CA6]">
+          CodeCompass
         </Link>
 
         <nav className="hidden md:flex space-x-6">
