@@ -6,8 +6,8 @@ export interface IUser {
   email: string;
   active: string;
   verified: string;
-  following: number[];
-  followers: number[];
+  following: any[];
+  followers: any[];
   profilePic?: string;
   createdAt?: string;
   updatedAt?: string;

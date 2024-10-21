@@ -46,8 +46,8 @@ const Profile = () => {
           width={100}
           height={100}
         />
-        <h4 className="font-medium mt-3">{user?.fname || "John Doe"}</h4>
-        <p>{user?.role}</p>
+        <h4 className="font-medium mt-3">{userData?.fname || "John Doe"}</h4>
+        <p>{userData?.role}</p>
         <div className="flex gap-10 my-3 text-black">
           {links.map((link, idx) => (
             <Link key={idx} href={link.href} title={link.label}>

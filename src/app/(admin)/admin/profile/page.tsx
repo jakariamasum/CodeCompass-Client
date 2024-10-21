@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlinePostAdd } from "react-icons/md";
-import { BiCalendar, BiComment, BiLike } from "react-icons/bi";
+import { BiCalendar, BiDislike, BiLike } from "react-icons/bi";
 import moment from "moment";
 import { useUser } from "@/context/user.provider";
 import { useUserPosts } from "@/hooks/post.hook";
@@ -12,7 +12,7 @@ import { IPost, IUser } from "@/types";
 import { useSingleUser, useUserUpdate } from "@/hooks/user.hook";
 import Image from "next/image";
 
-export default function UserProfile() {
+export default function AdminProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("posts");
   const { user } = useUser();
@@ -152,6 +152,7 @@ export default function UserProfile() {
                   </label>
                   <input
                     id="email"
+                    {...register("email", { required: true })}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#009CA6] focus:ring focus:ring-[#009CA6] focus:ring-opacity-50"
                   />
                 </div>
@@ -183,7 +184,12 @@ export default function UserProfile() {
 
                 {activeTab === "posts" && (
                   <div className="mt-6">
-                    <h3 className="text-xl font-semibold mb-4">My Posts</h3>
+                    <h3 className="text-xl font-semibold mb-4 flex items-center">
+                      Posts:
+                      <span className="ml-2 bg-[#009CA6] text-white text-sm px-3 py-1 rounded-full shadow-lg">
+                        {posts?.length}
+                      </span>
+                    </h3>{" "}
                     {posts?.length > 0 ? (
                       <div className="space-y-4">
                         {posts?.map((post: IPost, index: number) => (
@@ -202,8 +208,8 @@ export default function UserProfile() {
                                 {post?.likes}
                               </span>
                               <span className="flex items-center">
-                                <BiComment className="mr-1" />
-                                10
+                                <BiDislike className="mr-1" />
+                                {post?.dislikes}
                               </span>
                             </div>
                           </div>
@@ -220,7 +226,12 @@ export default function UserProfile() {
 
                 {activeTab === "following" && (
                   <div className="mt-6">
-                    <h3 className="text-xl font-semibold mb-4">Following</h3>
+                    <h3 className="text-xl font-semibold mb-4 flex items-center">
+                      Following:
+                      <span className="ml-2 bg-[#009CA6] text-white text-sm px-3 py-1 rounded-full shadow-lg">
+                        {userData?.following?.length}
+                      </span>
+                    </h3>{" "}
                     <div className="space-y-4">
                       {userData?.following?.map(
                         (follow: IUser, index: number) => (
@@ -255,7 +266,12 @@ export default function UserProfile() {
 
                 {activeTab === "followers" && (
                   <div className="mt-6">
-                    <h3 className="text-xl font-semibold mb-4">Followers</h3>
+                    <h3 className="text-xl font-semibold mb-4 flex items-center">
+                      Followers:
+                      <span className="ml-2 bg-[#009CA6] text-white text-sm px-3 py-1 rounded-full shadow-lg">
+                        {userData?.followers?.length}
+                      </span>
+                    </h3>
                     <div className="space-y-4">
                       {userData?.followers?.map(
                         (follower: IUser, index: number) => (
