@@ -54,4 +54,7 @@ export interface IPayment {
   subscriptionId: string;
   productId: string;
   __v: number;
+
+  createdAt: string;
+  updatedAt: string;
 }
