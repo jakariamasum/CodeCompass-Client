@@ -9,6 +9,7 @@ import {
   usePostDislike,
   usePostLike,
   useSinglePost,
+  useUserFollow,
 } from "@/hooks/post.hook";
 import CommentSection from "@/components/ui/Comment";
 import { useUser } from "@/context/user.provider";
@@ -21,6 +22,7 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { BiPrinter, BiShareAlt } from "react-icons/bi";
 import { FaFacebookF, FaLinkedinIn, FaTwitter } from "react-icons/fa";
+import { useSingleUser } from "@/hooks/user.hook";
 
 const SunEditor = dynamic(() => import("suneditor-react"), {
   ssr: false,
@@ -35,6 +37,7 @@ export default function PostDetails({ params }: { params: { id: string } }) {
   const [isShareMenuOpen, setIsShareMenuOpen] = useState<boolean>(false);
 
   const { user } = useUser();
+  const { data: visitor } = useSingleUser(user?.email as string);
 
   const { data: post, refetch: singlePostRefetch } = useSinglePost(params?.id);
   const { mutate: handleLike } = usePostLike(postRefetch);
@@ -43,8 +46,14 @@ export default function PostDetails({ params }: { params: { id: string } }) {
     params?.id
   );
   const { mutate: handleComment } = useCommentCreation(refetchComments);
+  const { mutate: handleFollow } = useUserFollow(singlePostRefetch);
 
   useEffect(() => {
+    if (post && visitor) {
+      setLocalLikes(post.likes);
+      setLocalDislikes(post.dislikes);
+      setIsFollowing(visitor.following.includes(post.user._id));
+    }
     if (post) {
       setLocalLikes(post.likes);
       setLocalDislikes(post.dislikes);
@@ -68,6 +77,10 @@ export default function PostDetails({ params }: { params: { id: string } }) {
   };
 
   const handleFollowClick = () => {
+    handleFollow({
+      userId: visitor?._id as string,
+      followerId: post?.user?._id,
+    });
     setIsFollowing((prev) => !prev);
     singlePostRefetch();
   };

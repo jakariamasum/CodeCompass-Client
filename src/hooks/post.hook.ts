@@ -1,7 +1,6 @@
 import {
   createPost,
   deletePost,
-  followPost,
   getAllPost,
   getSinglePost,
   getUserPost,
@@ -9,6 +8,7 @@ import {
   increaseLike,
   updatePost,
 } from "@/services/postServices";
+import { followUser } from "@/services/userService";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { FieldValues } from "react-hook-form";
 import { toast } from "sonner";
@@ -17,8 +17,8 @@ interface UpdatePostData {
   postData: FieldValues;
 }
 interface FollowUser {
-  id: string;
-  user: string;
+  userId: string;
+  followerId: string;
 }
 export const usePostCreation = (refetch: () => void) => {
   return useMutation<any, Error, FieldValues>({
@@ -109,12 +109,14 @@ export const usePostDislike = (refetch: () => void) => {
     },
   });
 };
-export const usePostFollow = (refetch: () => void) => {
+
+export const useUserFollow = (refetch: () => void) => {
   return useMutation<any, Error, FollowUser>({
-    mutationKey: ["POST_FOLLOW"],
-    mutationFn: async ({ id, user }) => await followPost(id, user),
+    mutationKey: ["USER_FOLLOW"],
+    mutationFn: async ({ userId, followerId }) =>
+      await followUser(userId, followerId),
     onSuccess: () => {
-      toast.success("Post follows successfully.");
+      toast.success("User follows successfully.");
       refetch();
     },
     onError: (error) => {

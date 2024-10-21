@@ -88,3 +88,18 @@ export const getSingleUser = async (email: string) => {
     );
   }
 };
+
+export const followUser = async (userId: string, followerId: string) => {
+  try {
+    const { data } = await axiosInstance.post(`/users/follow/${userId}`, {
+      followerId: followerId,
+    });
+    return data;
+  } catch (error: any) {
+    console.error("Error following user:", error);
+    throw new Error(
+      error.response?.data?.message ||
+        "An error occurred while following the user"
+    );
+  }
+};
