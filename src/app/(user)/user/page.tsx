@@ -1,197 +1,176 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useState } from "react";
+import Image from "next/image";
+import { FiEdit, FiThumbsUp, FiMessageSquare, FiStar } from "react-icons/fi";
+import { useUser } from "@/context/user.provider";
+import { useUserPosts } from "@/hooks/post.hook";
+import { useSingleUser } from "@/hooks/user.hook";
+import { IPost } from "@/types";
 
-type AnalyticsData = {
-  views: number;
-  shares: number;
-  comments: number;
-  readersSummary: number[];
-  reactionsSummary: { likes: number; loves: number; wows: number }[];
-  commentsSummary: number[];
-};
-
-const mockData: AnalyticsData = {
-  views: 172957,
-  shares: 384,
-  comments: 41,
-  readersSummary: Array(30)
-    .fill(0)
-    .map(() => Math.floor(Math.random() * 10000)),
-  reactionsSummary: Array(30)
-    .fill(0)
-    .map(() => ({
-      likes: Math.floor(Math.random() * 100),
-      loves: Math.floor(Math.random() * 50),
-      wows: Math.floor(Math.random() * 25),
-    })),
-  commentsSummary: Array(30)
-    .fill(0)
-    .map(() => Math.floor(Math.random() * 10)),
-};
-
-const ContentAnalyticsDashboard: React.FC = () => {
-  const readersSummaryRef = useRef<HTMLCanvasElement>(null);
-  const reactionsSummaryRef = useRef<HTMLCanvasElement>(null);
-  const commentsSummaryRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const drawGraph = (
-      canvas: HTMLCanvasElement,
-      data: number[],
-      color: string,
-      fillColor: string
-    ) => {
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const width = canvas.width;
-      const height = canvas.height;
-      const max = Math.max(...data);
-
-      ctx.clearRect(0, 0, width, height);
-      ctx.beginPath();
-      ctx.moveTo(0, height);
-
-      data.forEach((value, index) => {
-        const x = (index / (data.length - 1)) * width;
-        const y = height - (value / max) * height;
-        ctx.lineTo(x, y);
-      });
-
-      ctx.lineTo(width, height);
-      ctx.closePath();
-
-      ctx.fillStyle = fillColor;
-      ctx.fill();
-
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    };
-
-    const drawMultiLineGraph = (
-      canvas: HTMLCanvasElement,
-      data: { likes: number; loves: number; wows: number }[]
-    ) => {
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const width = canvas.width;
-      const height = canvas.height;
-      const max = Math.max(...data.flatMap((d) => [d.likes, d.loves, d.wows]));
-
-      ctx.clearRect(0, 0, width, height);
-
-      const drawLine = (values: number[], color: string) => {
-        ctx.beginPath();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-
-        values.forEach((value, index) => {
-          const x = (index / (values.length - 1)) * width;
-          const y = height - (value / max) * height;
-          if (index === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        });
-
-        ctx.stroke();
-      };
-
-      drawLine(
-        data.map((d) => d.likes),
-        "#8b5cf6"
-      );
-      drawLine(
-        data.map((d) => d.loves),
-        "#ec4899"
-      );
-      drawLine(
-        data.map((d) => d.wows),
-        "#3b82f6"
-      );
-    };
-
-    if (readersSummaryRef.current) {
-      drawGraph(
-        readersSummaryRef.current,
-        mockData.readersSummary,
-        "#8b5cf6",
-        "rgba(139, 92, 246, 0.1)"
-      );
-    }
-
-    if (reactionsSummaryRef.current) {
-      drawMultiLineGraph(
-        reactionsSummaryRef.current,
-        mockData.reactionsSummary
-      );
-    }
-
-    if (commentsSummaryRef.current) {
-      drawGraph(
-        commentsSummaryRef.current,
-        mockData.commentsSummary,
-        "#10b981",
-        "rgba(16, 185, 129, 0.1)"
-      );
-    }
-  }, []);
+export default function UserDashboard() {
+  const { user } = useUser();
+  const { data: posts } = useUserPosts(user?._id as string);
+  const { data: userData } = useSingleUser(user?.email as string);
+  const [activeTab, setActiveTab] = useState<"overview" | "posts">("overview");
+  const totalLikes = posts?.reduce(
+    (sum: number, post: IPost) => sum + post.likes,
+    0
+  );
 
   return (
-    <div className="min-h-screen bg-gray-500 text-white p-8">
-      <h1 className="text-3xl font-bold mb-8">Content Analytics Dashboard</h1>
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-gray-800 p-4 rounded-lg">
-          <h2 className="text-xl font-semibold mb-2">Views</h2>
-          <p className="text-4xl font-bold">
-            {mockData.views.toLocaleString()}
-          </p>
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:col-span-1">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex flex-col items-center">
+              <Image
+                src={userData?.profilePic || ""}
+                alt={`${userData?.fname} ${userData?.lname}`}
+                width={200}
+                height={200}
+                className="rounded-full mb-4"
+              />
+              <h2 className="text-2xl font-semibold">{`${userData?.fname} ${userData?.lname}`}</h2>
+              <p className="text-gray-600">{userData?.email}</p>
+              <div className="mt-4 flex items-center">
+                <span
+                  className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                    userData?.verified === "yes"
+                      ? "bg-green-100 text-green-800"
+                      : userData?.verified === "pending"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {userData?.verified === "yes"
+                    ? "Verified"
+                    : userData?.verified === "pending"
+                    ? "Pending"
+                    : "Not Verified"}
+                </span>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-around">
+              <div className="text-center">
+                <p className="text-2xl font-semibold">
+                  {userData?.following?.length}
+                </p>
+                <p className="text-gray-600">Following</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-semibold">
+                  {userData?.followers?.length}
+                </p>
+                <p className="text-gray-600">Followers</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="bg-gray-800 p-4 rounded-lg">
-          <h2 className="text-xl font-semibold mb-2">Shares</h2>
-          <p className="text-4xl font-bold">
-            {mockData.shares.toLocaleString()}
-          </p>
-        </div>
-        <div className="bg-gray-800 p-4 rounded-lg">
-          <h2 className="text-xl font-semibold mb-2">Comments</h2>
-          <p className="text-4xl font-bold">
-            {mockData.comments.toLocaleString()}
-          </p>
-        </div>
-      </div>
-      <div className="space-y-8">
-        <div className="bg-gray-800 p-4 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Readers Summary</h2>
-          <canvas
-            ref={readersSummaryRef}
-            width={800}
-            height={200}
-            className="w-full"
-          />
-        </div>
-        <div className="bg-gray-800 p-4 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Reactions Summary</h2>
-          <canvas
-            ref={reactionsSummaryRef}
-            width={800}
-            height={200}
-            className="w-full"
-          />
-        </div>
-        <div className="bg-gray-800 p-4 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Comments Summary</h2>
-          <canvas
-            ref={commentsSummaryRef}
-            width={800}
-            height={200}
-            className="w-full"
-          />
+
+        <div className="md:col-span-2">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex mb-6">
+              <button
+                className={`mr-4 pb-2 ${
+                  activeTab === "overview" ? "border-b-2 border-blue-500" : ""
+                }`}
+                onClick={() => setActiveTab("overview")}
+              >
+                Overview
+              </button>
+              <button
+                className={`pb-2 ${
+                  activeTab === "posts" ? "border-b-2 border-blue-500" : ""
+                }`}
+                onClick={() => setActiveTab("posts")}
+              >
+                Posts
+              </button>
+            </div>
+
+            {activeTab === "overview" && (
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Statistics</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <StatCard
+                    icon={<FiEdit />}
+                    title="Total Posts"
+                    value={posts?.length}
+                  />
+                  <StatCard
+                    icon={<FiThumbsUp />}
+                    title="Total Likes"
+                    value={totalLikes}
+                  />
+                  <StatCard
+                    icon={<FiMessageSquare />}
+                    title="Total Comments"
+                    value={20}
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeTab === "posts" && (
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Your Posts</h3>
+                <div className="space-y-4">
+                  {posts.map((post: IPost) => (
+                    <PostCard key={post?._id} post={post} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default ContentAnalyticsDashboard;
+interface StatCardProps {
+  icon: React.ReactNode;
+  title: string;
+  value: number;
+}
+
+const StatCard: React.FC<StatCardProps> = ({ icon, title, value }) => (
+  <div className="bg-gray-50 rounded-lg p-4 flex items-center">
+    <div className="text-blue-500 text-2xl mr-4">{icon}</div>
+    <div>
+      <p className="text-gray-600">{title}</p>
+      <p className="text-2xl font-semibold">{value}</p>
+    </div>
+  </div>
+);
+
+interface PostCardProps {
+  post: IPost;
+}
+
+const PostCard: React.FC<PostCardProps> = ({ post }) => (
+  <div className="bg-gray-50 rounded-lg p-4">
+    <div className="flex justify-between items-start">
+      <h4 className="text-lg font-semibold">{post.title}</h4>
+      {post.isPremium && (
+        <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded-full flex items-center">
+          <FiStar className="mr-1" /> Premium
+        </span>
+      )}
+    </div>
+    <div className="mt-4 flex justify-between items-center">
+      <div className="flex space-x-4">
+        <span className="flex items-center text-gray-600">
+          <FiThumbsUp className="mr-1" /> {post.likes}
+        </span>
+        <span className="flex items-center text-gray-600">
+          <FiMessageSquare className="mr-1" /> {20}
+        </span>
+      </div>
+      <span className="text-sm text-gray-500">
+        {new Date(post.createdAt as string).toLocaleDateString()}
+      </span>
+    </div>
+  </div>
+);

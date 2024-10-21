@@ -24,7 +24,7 @@ export const getAllPost = async () => {
 };
 export const getUserPost = async (id: string) => {
   try {
-    const { data } = await axiosInstance.get(`/posts/user-post?user=${id}`);
+    const { data } = await axiosInstance.get(`/posts/user-post/${id}`);
     console.log(data.data);
     return data.data;
   } catch (error: any) {
