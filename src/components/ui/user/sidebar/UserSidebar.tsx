@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { IoIosCloseCircle } from "react-icons/io";
-import { MdOutlineDashboard } from "react-icons/md";
+import { MdOutlineDashboard, MdPayments } from "react-icons/md";
 import styles from "./Style.module.css";
 import { usePathname } from "next/navigation";
 import { FaBars } from "react-icons/fa";
@@ -113,6 +113,20 @@ const UserSidebar: React.FC = () => {
             >
               <IoCreate size={18} />
               <span className="ml-4">Create Post</span>
+            </Link>
+          </div>
+          <div>
+            <Link
+              href="/user/payments"
+              passHref
+              className={`flex items-center py-3 px-4 font-semibold ${
+                pathname === "/user/payments"
+                  ? "bg-[#dfeaff]"
+                  : "text-gray-600 hover:bg-[#f5f8fe]"
+              }`}
+            >
+              <MdPayments size={18} />
+              <span className="ml-4">Payments</span>
             </Link>
           </div>
           {/* Sidebar Links */}

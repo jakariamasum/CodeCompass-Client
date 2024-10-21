@@ -1,7 +1,8 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
-import { useGetPayments } from "@/hooks/payment.hook";
+import { useUser } from "@/context/user.provider";
+import { useUserPayments } from "@/hooks/payment.hook";
 import { IPayment } from "@/types";
 import Link from "next/link";
 import React, { useState, useMemo } from "react";
@@ -17,7 +18,8 @@ const displayFields: (keyof IPayment)[] = [
 ];
 
 export default function PaymentManagement() {
-  const { data: payments } = useGetPayments();
+  const { user } = useUser();
+  const { data: payments } = useUserPayments(user?._id as string);
   const [sortField, setSortField] = useState<keyof IPayment>("_id");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [filter, setFilter] = useState("");

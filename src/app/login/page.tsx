@@ -70,7 +70,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/v1/users/recover/password/kk",
+        "https://code-compass-server.vercel.app/api/v1/users/recover/password/kk",
         {
           method: "POST",
           headers: {

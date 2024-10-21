@@ -43,3 +43,15 @@ export interface IComment {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface IPayment {
+  _id: string;
+  paymentId: string;
+  amount: number;
+  currency: string;
+  customerEmail: string;
+  status: string;
+  subscriptionId: string;
+  productId: string;
+  __v: number;
+}

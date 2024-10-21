@@ -253,7 +253,7 @@ export default function TechTipsFeed() {
                   </button>
                 </div>
                 {post.isPremium ? (
-                  <Link href={`/payment`}>
+                  <Link href={`/payment?productId=${post?._id}`}>
                     <button className=" text-[#009CA6] hover:text-white px-4 py-2 rounded-full hover:bg-[#009CA6]  transition-colors duration-300">
                       Subscribe
                     </button>

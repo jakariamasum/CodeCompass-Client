@@ -1,18 +1,16 @@
-import { createPayment } from "@/services/paymentService";
-import { useMutation } from "@tanstack/react-query";
-import { FieldValues } from "react-hook-form";
-import { toast } from "sonner";
+import { getAllPayments, getUserPayment } from "@/services/paymentService";
+import { useQuery } from "@tanstack/react-query";
 
-export const usePaymentCreation = (refetch: () => void) => {
-  return useMutation<any, Error, FieldValues>({
-    mutationKey: ["PAYMENT_CREATION"],
-    mutationFn: async (paymentData) => await createPayment(paymentData),
-    onSuccess: () => {
-      toast.success("Post created successfully.");
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
+export const useGetPayments = () => {
+  return useQuery({
+    queryKey: ["GET_PAYMENTS"],
+    queryFn: async () => await getAllPayments(),
+  });
+};
+export const useUserPayments = (id: string) => {
+  return useQuery({
+    queryKey: ["GET_USER_PAYMENTS", id],
+    queryFn: async () => await getUserPayment(id),
+    enabled: !!id,
   });
 };

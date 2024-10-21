@@ -1,5 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
+
+import { Suspense } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Button,
@@ -17,12 +19,24 @@ import {
 } from "react-icons/fa";
 import { useUser } from "@/context/user.provider";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
 export default function PremiumSubscription() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PremiumSubscriptionContent />
+    </Suspense>
+  );
+}
+
+function PremiumSubscriptionContent() {
+  const searchParams = useSearchParams();
+  const productId = searchParams.get("productId");
+
   const { user } = useUser();
   const handleCheckout = async () => {
     const stripe = await stripePromise;
@@ -34,7 +48,10 @@ export default function PremiumSubscription() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ customerEmail: user?.email }),
+        body: JSON.stringify({
+          customerEmail: user?.email,
+          productId: productId,
+        }),
       }
     );
 
@@ -115,13 +132,13 @@ export default function PremiumSubscription() {
           {user ? (
             <Button
               onClick={handleCheckout}
-              className="w-full py-4 text-lg  hover:text-black hover:bg-gray-100 font-semibold rounded-md shadow-md transition duration-300 ease-in-out"
+              className="w-full py-4 text-lg hover:text-black hover:bg-gray-100 font-semibold rounded-md shadow-md transition duration-300 ease-in-out"
             >
               Subscribe Now
             </Button>
           ) : (
             <Link href={"/login"}>
-              <Button className="w-full py-4 text-lg  hover:text-black hover:bg-gray-100 font-semibold rounded-md shadow-md transition duration-300 ease-in-out">
+              <Button className="w-full py-4 text-lg hover:text-black hover:bg-gray-100 font-semibold rounded-md shadow-md transition duration-300 ease-in-out">
                 Login before pay
               </Button>
             </Link>
