@@ -18,15 +18,8 @@ const UserSidebar: React.FC = () => {
   console.log(pathname);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev);
-  };
-  // Close the sidebar when clicking outside of it
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      navbarRef.current &&
-      !navbarRef.current.contains(event.target as Node)
-    ) {
-      closeSidebar();
+    if (window.innerWidth <= 768) {
+      setIsSidebarOpen((prev) => !prev);
     }
   };
 
@@ -34,13 +27,34 @@ const UserSidebar: React.FC = () => {
     setIsSidebarOpen(false);
   };
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      navbarRef.current &&
+      !navbarRef.current.contains(event.target as Node) &&
+      window.innerWidth <= 768
+    ) {
+      closeSidebar();
+    }
+  };
+
+  const handleResize = () => {
+    if (window.innerWidth > 768) {
+      setIsSidebarOpen(true);
+    } else {
+      setIsSidebarOpen(false);
+    }
+  };
+
   useEffect(() => {
+    handleResize();
+    window.addEventListener("resize", handleResize);
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
+      window.removeEventListener("resize", handleResize);
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
   return (
     <>
       <button
@@ -49,11 +63,16 @@ const UserSidebar: React.FC = () => {
       >
         <FaBars className="text-3xl" />
       </button>
+
       <nav
         className={`${styles.sidebar} ${
           isSidebarOpen ? styles.sidebarShow : ""
-        }`}
+        } lg:translate-x-0`}
         ref={navbarRef}
+        style={{
+          transform: isSidebarOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 0.3s ease-in-out",
+        }}
       >
         <div className="px-3 text-black">
           {/* Sidebar top area */}

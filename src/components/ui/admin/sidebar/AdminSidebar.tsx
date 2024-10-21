@@ -8,29 +8,21 @@ import {
   MdPayment,
   MdVerifiedUser,
 } from "react-icons/md";
-import styles from "./Style.module.css";
-import { usePathname } from "next/navigation";
 import { FaBars, FaUsers } from "react-icons/fa";
 import { BsStack } from "react-icons/bs";
 import { BiHome } from "react-icons/bi";
+import { usePathname } from "next/navigation";
 import Profile from "../../Profile";
+import styles from "./Style.module.css";
 
 const AdminSidebar: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navbarRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
-  console.log(pathname);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev);
-  };
-  // Close the sidebar when clicking outside of it
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      navbarRef.current &&
-      !navbarRef.current.contains(event.target as Node)
-    ) {
-      closeSidebar();
+    if (window.innerWidth <= 768) {
+      setIsSidebarOpen((prev) => !prev);
     }
   };
 
@@ -38,13 +30,35 @@ const AdminSidebar: React.FC = () => {
     setIsSidebarOpen(false);
   };
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      navbarRef.current &&
+      !navbarRef.current.contains(event.target as Node) &&
+      window.innerWidth <= 768
+    ) {
+      closeSidebar();
+    }
+  };
+
+  const handleResize = () => {
+    if (window.innerWidth > 768) {
+      setIsSidebarOpen(true);
+    } else {
+      setIsSidebarOpen(false);
+    }
+  };
+
   useEffect(() => {
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
+      window.removeEventListener("resize", handleResize);
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
   return (
     <>
       <button
@@ -53,26 +67,26 @@ const AdminSidebar: React.FC = () => {
       >
         <FaBars className="text-3xl" />
       </button>
+
       <nav
         className={`${styles.sidebar} ${
           isSidebarOpen ? styles.sidebarShow : ""
-        }`}
+        } lg:translate-x-0`}
         ref={navbarRef}
+        style={{
+          transform: isSidebarOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 0.3s ease-in-out",
+        }}
       >
-        <div className="px-3 text-black">
-          {/* Sidebar top area */}
+        <div className="px-3 text-black fixed">
           <div className="flex justify-between pb-5 border-b">
-            {/* Main logo */}
             <span className="font-bold text-2xl">CodeCompass</span>
 
-            {/* Close button for mobile view */}
             <button onClick={closeSidebar} className="text-black lg:hidden">
               <IoIosCloseCircle className="text-3xl" />
             </button>
           </div>
-          <div>
-            <Profile />
-          </div>
+          <Profile />
 
           {/* Sidebar Links */}
           <p className="px-3 my-2">Main</p>
@@ -146,7 +160,6 @@ const AdminSidebar: React.FC = () => {
               <span className="ml-4">Verification</span>
             </Link>
           </div>
-
           <div>
             <Link
               href="/admin/payments"
@@ -168,8 +181,7 @@ const AdminSidebar: React.FC = () => {
             <Link
               href="/"
               passHref
-              className={`flex items-center py-3 px-4 font-semibold text-gray-600 hover:bg-[#f5f8fe]"
-              }`}
+              className="flex items-center py-3 px-4 font-semibold text-gray-600 hover:bg-[#f5f8fe]"
             >
               <BiHome size={18} />
               <span className="ml-4">Home</span>
