@@ -30,7 +30,14 @@ const Header = () => {
           <Link href="/contact" className="hover:text-[#009CA6]">
             Contact
           </Link>
-          {!user && (
+          {user ? (
+            <Link
+              href={`/${user?.role}`}
+              className="hover:text-[#009CA6] bg-[#009CA6] px-4 py-2 rounded hover:bg-gray-500"
+            >
+              Dashboard
+            </Link>
+          ) : (
             <Link
               href="/login"
               className="hover:text-[#009CA6] bg-[#009CA6] px-4 py-2 rounded hover:bg-gray-500"
@@ -59,20 +66,7 @@ const Header = () => {
             >
               Home
             </Link>
-            <Link
-              href="/categories"
-              onClick={hrefggleMenu}
-              className="hover:text-[#009CA6]"
-            >
-              Categories
-            </Link>
-            <Link
-              href="/premium"
-              onClick={hrefggleMenu}
-              className="hover:text-[#009CA6]"
-            >
-              Premium
-            </Link>
+
             <Link
               href="/about"
               onClick={hrefggleMenu}

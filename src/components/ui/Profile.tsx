@@ -3,30 +3,33 @@ import Image from "next/image";
 import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 import { TbHeartHandshake } from "react-icons/tb";
 import { useUser } from "@/context/user.provider";
-import { logout } from "@/app";
 import { useRouter } from "next/navigation";
+import { useSingleUser } from "@/hooks/user.hook";
+import { logOut } from "@/hooks/auth.hook";
 
 const Profile = () => {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
+  const { data: userData } = useSingleUser(user?.email as string);
+
   const router = useRouter();
   const links = [
     {
       label: "Profile",
-      href: user?.role === "admin" ? "/admin/profile" : "/user/profile",
+      href: userData?.role === "admin" ? "/admin/profile" : "/user/profile",
       icon: <FaUserCircle className="text-black h-5 w-5 flex-shrink-0" />,
     },
     {
       label: "Tickets",
-      href: user?.role === "admin" ? "/admin/tickets" : "/user/tickets",
+      href: userData?.role === "admin" ? "/admin/tickets" : "/user/tickets",
       icon: (
         <TbHeartHandshake className="text-black-700  h-5 w-5 flex-shrink-0" />
       ),
     },
   ];
-  console.log(user);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    setUser(null);
+    await logOut();
     router.push("/");
   };
 
@@ -36,10 +39,10 @@ const Profile = () => {
         <Image
           className="rounded-xl"
           src={
-            user?.profilePic ||
+            userData?.profilePic ||
             "https://i.ibb.co/YQd9HKR/man-avatar-clipart-illustration-free-png.png"
           }
-          alt={user?.fname || "user avatar"}
+          alt={userData?.fname || "user avatar"}
           width={100}
           height={100}
         />

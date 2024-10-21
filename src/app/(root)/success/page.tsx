@@ -8,10 +8,10 @@ export default function SuccessPage() {
           Thank you for your purchase!
         </h2>
         <p className="text-lg mb-6 text-gray-700">
-          Your subscription to the Tech and Tips Guide is now active.
+          Your subscription is now active.
         </p>
-        <Link href="/" className="text-blue-500 underline">
-          Go to Home
+        <Link href="/user/payments" className="text-blue-500 underline">
+          Go to Payments to show
         </Link>
       </div>
     </div>
