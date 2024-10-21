@@ -12,7 +12,28 @@ import { PostModal } from "@/components/ui/modals/post.create";
 import PostEditModal from "@/components/ui/modals/post.edit";
 import { useUser } from "@/context/user.provider";
 
-const categories = ["Web", "Software Engineering", "AI", "Mobile", "DevOps"];
+const categories = [
+  "Web Development",
+  "Software Engineering",
+  "Artificial Intelligence (AI)",
+  "Mobile Development",
+  "DevOps",
+  "Cloud Computing",
+  "Cybersecurity",
+  "Data Science",
+  "Machine Learning",
+  "Blockchain",
+  "Tech News",
+  "Programming Languages",
+  "UI/UX Design",
+  "Gadgets and Devices",
+  "Tech Reviews",
+  "Productivity Tools",
+  "Tech Tutorials",
+  "Open Source",
+  "Networking",
+  "Tech Trends",
+];
 
 const Post = () => {
   const [showModal, setShowModal] = useState(false);

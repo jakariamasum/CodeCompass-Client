@@ -40,6 +40,7 @@ const PostEditModal = ({
         isPremium: post.isPremium || false,
         tags: post.tags || [],
       });
+      setEditorContent("");
       setEditorContent(post.content || "");
       setTags(post.tags || []);
     }
@@ -57,12 +58,18 @@ const PostEditModal = ({
   };
 
   if (!showModal) return null;
+  const handleCloseModal = () => {
+    reset();
+    setEditorContent("");
+    setTags([]);
+    setShowModal(false);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50 overflow-y-auto">
       <div className="relative bg-white w-full max-w-2xl mx-4 p-6 rounded-lg shadow-lg lg:mx-8">
         <button
-          onClick={() => setShowModal(false)}
+          onClick={handleCloseModal}
           className="absolute top-4 right-4 text-red-500 text-2xl"
         >
           <FaTimes />
@@ -104,7 +111,12 @@ const PostEditModal = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium">Tags</label>
+            <label className="block text-sm font-medium">
+              Tags{" "}
+              <span className="text-sm text-gray-500s">
+                (press enter for add)
+              </span>{" "}
+            </label>
             <Tag value={tags} onChange={setTags} />
           </div>
 
