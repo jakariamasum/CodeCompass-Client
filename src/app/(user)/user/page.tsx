@@ -1,176 +1,235 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
-import { FiEdit, FiThumbsUp, FiMessageSquare, FiStar } from "react-icons/fi";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from "chart.js";
+import { Line, Bar, Doughnut } from "react-chartjs-2";
 import { useUser } from "@/context/user.provider";
-import { useUserPosts } from "@/hooks/post.hook";
 import { useSingleUser } from "@/hooks/user.hook";
-import { IPost } from "@/types";
+import { useUserPosts } from "@/hooks/post.hook";
+import { useUserPayments } from "@/hooks/payment.hook";
+import { IPayment } from "@/types";
 
-export default function UserDashboard() {
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
+
+const UserDashboard: React.FC = () => {
   const { user } = useUser();
-  const { data: posts } = useUserPosts(user?._id as string);
   const { data: userData } = useSingleUser(user?.email as string);
-  const [activeTab, setActiveTab] = useState<"overview" | "posts">("overview");
-  const totalLikes = posts?.reduce(
-    (sum: number, post: IPost) => sum + post.likes,
-    0
-  );
+  const { data: posts = [] } = useUserPosts(user?._id as string);
+  const { data: payments = [] } = useUserPayments(user?.email as string);
+  console.log(payments);
+  payments?.map((p: IPayment) => console.log(p.createdAt));
+
+  const monthlyPaymentsData = {
+    labels: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+    datasets: [
+      {
+        label: "Monthly Payments",
+        data: Array(12)
+          ?.fill(0)
+          ?.map((_, i) =>
+            payments
+              ?.filter((p: IPayment) => new Date(p.createdAt).getMonth() === i)
+              ?.reduce((sum: number, p: IPayment) => sum + p.amount, 0)
+          ),
+        borderColor: "rgb(75, 192, 192)",
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const postActivityData = {
+    labels: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+    datasets: [
+      {
+        label: "Posts Created",
+        data: Array(12)
+          ?.fill(0)
+          ?.map(
+            (_, i) =>
+              posts?.filter(
+                (p: { createdAt: Date }) =>
+                  new Date(p.createdAt).getMonth() === i
+              ).length
+          ),
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
+      },
+    ],
+  };
+
+  const postEngagementData = {
+    labels: ["Likes", "Dislikes", "Comments"],
+    datasets: [
+      {
+        data: [
+          posts?.reduce(
+            (sum: any, post: { likes: number }) => sum + post.likes,
+            0
+          ),
+          posts?.reduce(
+            (sum: any, post: { dislikes: number }) => sum + post.dislikes,
+            0
+          ),
+          posts?.reduce(
+            (sum: any, post: { comments: string | any[] }) =>
+              sum + post.comments.length,
+            0
+          ),
+        ],
+        backgroundColor: [
+          "rgba(75, 192, 192, 0.6)",
+          "rgba(255, 99, 132, 0.6)",
+          "rgba(255, 206, 86, 0.6)",
+        ],
+      },
+    ],
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-1">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex flex-col items-center">
-              <Image
-                src={userData?.profilePic || ""}
-                alt={`${userData?.fname} ${userData?.lname}`}
-                width={200}
-                height={200}
-                className="rounded-full mb-4"
-              />
-              <h2 className="text-2xl font-semibold">{`${userData?.fname} ${userData?.lname}`}</h2>
-              <p className="text-gray-600">{userData?.email}</p>
-              <div className="mt-4 flex items-center">
-                <span
-                  className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    userData?.verified === "yes"
-                      ? "bg-green-100 text-green-800"
-                      : userData?.verified === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {userData?.verified === "yes"
-                    ? "Verified"
-                    : userData?.verified === "pending"
-                    ? "Pending"
-                    : "Not Verified"}
-                </span>
-              </div>
-            </div>
-            <div className="mt-6 flex justify-around">
-              <div className="text-center">
-                <p className="text-2xl font-semibold">
-                  {userData?.following?.length}
-                </p>
-                <p className="text-gray-600">Following</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-semibold">
-                  {userData?.followers?.length}
-                </p>
-                <p className="text-gray-600">Followers</p>
-              </div>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg"
+            style={{ height: "350px" }}
+          >
+            <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+              Monthly Payments
+            </h2>
+            <Line
+              data={monthlyPaymentsData}
+              options={{ responsive: true, maintainAspectRatio: false }}
+            />
+          </div>
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg"
+            style={{ height: "350px" }}
+          >
+            <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+              Post Activity
+            </h2>
+            <Bar
+              data={postActivityData}
+              options={{ responsive: true, maintainAspectRatio: false }}
+            />
+          </div>
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg"
+            style={{ height: "350px" }}
+          >
+            <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+              Post Engagement
+            </h2>
+            <Doughnut
+              data={postEngagementData}
+              options={{ responsive: true, maintainAspectRatio: false }}
+            />
+          </div>
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg"
+            style={{ height: "350px" }}
+          >
+            <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+              Recent Activity
+            </h2>
+            <div className="space-y-4">
+              {[...payments, ...posts]
+                ?.sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                )
+                ?.slice(0, 5)
+                ?.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between border-b pb-2"
+                  >
+                    <span className="text-gray-600">
+                      {"amount" in item
+                        ? `Payment: $${item.amount / 100}`
+                        : "title" in item
+                        ? `New Post: ${item.title}`
+                        : "Nothing"}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {new Date(item.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
 
-        <div className="md:col-span-2">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex mb-6">
-              <button
-                className={`mr-4 pb-2 ${
-                  activeTab === "overview" ? "border-b-2 border-blue-500" : ""
-                }`}
-                onClick={() => setActiveTab("overview")}
-              >
-                Overview
-              </button>
-              <button
-                className={`pb-2 ${
-                  activeTab === "posts" ? "border-b-2 border-blue-500" : ""
-                }`}
-                onClick={() => setActiveTab("posts")}
-              >
-                Posts
-              </button>
+        <div className="mt-8 bg-white p-6 rounded-lg shadow-lg">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+            Account Details
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-gray-600">
+                Followers: {userData?.followers.length}
+              </p>
+              <p className="text-gray-600">
+                Following: {userData?.following.length}
+              </p>
             </div>
-
-            {activeTab === "overview" && (
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Statistics</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <StatCard
-                    icon={<FiEdit />}
-                    title="Total Posts"
-                    value={posts?.length}
-                  />
-                  <StatCard
-                    icon={<FiThumbsUp />}
-                    title="Total Likes"
-                    value={totalLikes}
-                  />
-                  <StatCard
-                    icon={<FiMessageSquare />}
-                    title="Total Comments"
-                    value={20}
-                  />
-                </div>
-              </div>
-            )}
-
-            {activeTab === "posts" && (
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Your Posts</h3>
-                <div className="space-y-4">
-                  {posts.map((post: IPost) => (
-                    <PostCard key={post?._id} post={post} />
-                  ))}
-                </div>
-              </div>
-            )}
+            <div>
+              <p className="text-gray-600">Verified: {userData?.verified}</p>
+              <p className="text-gray-600">
+                Account Status: {userData?.active ? "Active" : "Inactive"}
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
-interface StatCardProps {
-  icon: React.ReactNode;
-  title: string;
-  value: number;
-}
-
-const StatCard: React.FC<StatCardProps> = ({ icon, title, value }) => (
-  <div className="bg-gray-50 rounded-lg p-4 flex items-center">
-    <div className="text-blue-500 text-2xl mr-4">{icon}</div>
-    <div>
-      <p className="text-gray-600">{title}</p>
-      <p className="text-2xl font-semibold">{value}</p>
-    </div>
-  </div>
-);
-
-interface PostCardProps {
-  post: IPost;
-}
-
-const PostCard: React.FC<PostCardProps> = ({ post }) => (
-  <div className="bg-gray-50 rounded-lg p-4">
-    <div className="flex justify-between items-start">
-      <h4 className="text-lg font-semibold">{post.title}</h4>
-      {post.isPremium && (
-        <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded-full flex items-center">
-          <FiStar className="mr-1" /> Premium
-        </span>
-      )}
-    </div>
-    <div className="mt-4 flex justify-between items-center">
-      <div className="flex space-x-4">
-        <span className="flex items-center text-gray-600">
-          <FiThumbsUp className="mr-1" /> {post.likes}
-        </span>
-        <span className="flex items-center text-gray-600">
-          <FiMessageSquare className="mr-1" /> {20}
-        </span>
-      </div>
-      <span className="text-sm text-gray-500">
-        {new Date(post.createdAt as string).toLocaleDateString()}
-      </span>
-    </div>
-  </div>
-);
+export default UserDashboard;

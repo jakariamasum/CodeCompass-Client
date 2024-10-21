@@ -28,8 +28,8 @@ const Profile = () => {
   ];
 
   const handleLogout = async () => {
-    setUser(null);
     await logOut();
+    setUser(null);
     router.push("/");
   };
 

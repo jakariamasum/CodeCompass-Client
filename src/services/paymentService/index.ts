@@ -16,7 +16,6 @@ export const getAllPayments = async () => {
 export const getUserPayment = async (id: string) => {
   try {
     const { data } = await axiosInstance.get(`/payment/${id}`);
-    console.log(data.data);
     return data.data;
   } catch (error: any) {
     throw new Error(error.message);
