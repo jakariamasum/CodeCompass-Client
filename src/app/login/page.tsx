@@ -11,6 +11,7 @@ import { getCurrentUser } from "..";
 import { useUser } from "@/context/user.provider";
 import { IUser } from "@/types";
 import axiosInstance from "@/lib/AxiosInstance";
+import { toast } from "sonner";
 
 type LoginFormData = {
   email: string;
@@ -61,6 +62,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Login error:", error);
+      toast.error("Something wrong! Please try again!!");
     } finally {
       setLoading(false);
     }

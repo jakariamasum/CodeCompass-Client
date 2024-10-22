@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import axiosInstance from "@/lib/AxiosInstance";
@@ -10,8 +10,15 @@ type FormData = {
   password: string;
   confirmPassword: string;
 };
-
 const VerifyPassword = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyPasswordContent />
+    </Suspense>
+  );
+};
+
+const VerifyPasswordContent = () => {
   const router = useRouter();
   const searchQuery = useSearchParams();
   const code = searchQuery.get("code");

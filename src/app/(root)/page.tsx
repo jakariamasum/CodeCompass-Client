@@ -46,16 +46,17 @@ const categories = [
 ];
 
 export default function TechTipsFeed() {
-  const { data: allPosts, isLoading } = useGetPosts();
+  const { data: allPosts = [], isLoading } = useGetPosts();
   const [displayedPosts, setDisplayedPosts] = useState<Post[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [sort, setSort] = useState<"latest" | (typeof categories)[number]>(
     "latest"
   );
-
   const [search, setSearch] = useState("");
-  const postsPerPage = 10;
+  const postsPerPage = allPosts?.length;
+
   const observer = useRef<IntersectionObserver | null>(null);
+
   const lastPostElementRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (isLoading) return;
@@ -71,16 +72,16 @@ export default function TechTipsFeed() {
   );
 
   useEffect(() => {
-    if (allPosts) {
+    if (allPosts.length) {
       const filteredAndSortedPosts = getFilteredAndSortedPosts(allPosts);
       setDisplayedPosts(filteredAndSortedPosts.slice(0, postsPerPage));
-      setHasMore(filteredAndSortedPosts.length > postsPerPage);
+      setHasMore(true);
     }
   }, [allPosts, search, sort]);
 
   const getFilteredAndSortedPosts = (posts: Post[]) => {
     const filteredPosts = posts.filter(
-      (post: Post) =>
+      (post) =>
         post.title.toLowerCase().includes(search.toLowerCase()) ||
         post.content.toLowerCase().includes(search.toLowerCase()) ||
         post.tags.some((tag) =>
@@ -102,19 +103,18 @@ export default function TechTipsFeed() {
   };
 
   const loadMorePosts = () => {
-    if (allPosts) {
-      const filteredAndSortedPosts = getFilteredAndSortedPosts(allPosts);
-      const nextPosts = filteredAndSortedPosts.slice(
-        displayedPosts.length,
-        displayedPosts.length + postsPerPage
-      );
+    const filteredAndSortedPosts = getFilteredAndSortedPosts(allPosts);
+    const nextPosts = filteredAndSortedPosts.slice(
+      displayedPosts.length,
+      displayedPosts.length + postsPerPage
+    );
+
+    if (nextPosts.length === 0) {
+      setHasMore(true);
+    } else {
       setDisplayedPosts((prevPosts) => [...prevPosts, ...nextPosts]);
-      setHasMore(
-        displayedPosts.length + nextPosts.length < filteredAndSortedPosts.length
-      );
     }
   };
-
   return (
     <div className="min-h-screen bg-gray-100 p-4 text-black">
       <div className="max-w-4xl mx-auto space-y-6">

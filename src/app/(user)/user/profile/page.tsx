@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlinePostAdd } from "react-icons/md";
-import { BiCalendar, BiComment, BiLike } from "react-icons/bi";
+import { BiCalendar, BiDislike, BiLike } from "react-icons/bi";
 import moment from "moment";
 import { useUser } from "@/context/user.provider";
 import { useUserPosts } from "@/hooks/post.hook";
@@ -202,8 +202,8 @@ export default function UserProfile() {
                                 {post?.likes}
                               </span>
                               <span className="flex items-center">
-                                <BiComment className="mr-1" />
-                                10
+                                <BiDislike className="mr-1" />
+                                {post?.dislikes}
                               </span>
                             </div>
                           </div>
