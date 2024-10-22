@@ -78,6 +78,17 @@ const Post = () => {
             </option>
           ))}
         </select>
+        <div className="flex justify-end items-center mb-4">
+          <button
+            onClick={() => {
+              setShowModal(true);
+              setEditorContent("");
+            }}
+            className="bg-[#009CA6] hover:bg-blue-500 text-white px-4 py-2 rounded-lg"
+          >
+            Create Post
+          </button>
+        </div>
       </div>
 
       <PostList
