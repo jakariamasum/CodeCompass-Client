@@ -54,6 +54,8 @@ const PostEditModal = ({
     console.log(data);
     handlePostEdit({ id: post?._id as string, postData: data });
     reset();
+    setEditorContent("");
+    setTags([]);
     setShowModal(false);
   };
 

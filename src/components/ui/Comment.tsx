@@ -105,7 +105,10 @@ export default function CommentSection({
             </label>
             <div className="mt-1 flex items-start space-x-4">
               <Avatar
-                src={currentUser?.profilePic || ""}
+                src={
+                  currentUser?.profilePic ||
+                  "https://i.ibb.co.com/bdfpZcG/blank-profile-picture-973460-960-720.png"
+                }
                 alt={currentUser?.fname}
               />
               <textarea

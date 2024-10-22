@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { getCurrentUser } from "..";
 import { useUser } from "@/context/user.provider";
 import { IUser } from "@/types";
+import axiosInstance from "@/lib/AxiosInstance";
 
 type LoginFormData = {
   email: string;
@@ -69,26 +70,18 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/v1/recovery/request-code",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: data.email }),
-        }
-      );
+      const response = await axiosInstance.post("/recovery/request-code", {
+        email: data.email,
+      });
 
-      const result = await response.json();
       console.log(response);
 
-      if (response.ok) {
+      if (response.status === 200) {
         setRecoveryMessage(
           "If an account exists for this email, you will receive a recovery link shortly."
         );
       } else {
-        throw new Error(result.message || "An error occurred");
+        throw new Error("An error occurred");
       }
     } catch (error) {
       console.log("Recovery error:", error);

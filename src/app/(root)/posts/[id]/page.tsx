@@ -202,16 +202,18 @@ export default function PostDetails({ params }: { params: { id: string } }) {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={handleFollowClick}
-                className={`px-4 py-2 rounded-full ${
-                  isFollowing
-                    ? "bg-gray-200 text-gray-800"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
-                } transition-colors duration-200`}
-              >
-                {isFollowing ? "Following" : "Follow"}
-              </button>
+              {user && (
+                <button
+                  onClick={handleFollowClick}
+                  className={`px-4 py-2 rounded-full ${
+                    isFollowing
+                      ? "bg-gray-200 text-gray-800"
+                      : "bg-blue-500 text-white hover:bg-blue-600"
+                  } transition-colors duration-200`}
+                >
+                  {isFollowing ? "Following" : "Follow"}
+                </button>
+              )}
             </div>
           </header>
 
