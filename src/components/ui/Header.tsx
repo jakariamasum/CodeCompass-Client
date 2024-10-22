@@ -1,93 +1,116 @@
 "use client";
+
 import { useUser } from "@/context/user.provider";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 
-const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user } = useUser();
+interface NavItem {
+  href: string;
+  label: string;
+}
 
-  const hrefggleMenu = () => {
+interface NavLinkProps extends NavItem {
+  className?: string;
+}
+
+interface User {
+  role: string;
+}
+
+const Header: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const { user } = useUser() as { user: User | null };
+  const pathname = usePathname();
+
+  const toggleMenu = (): void => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const navItems: NavItem[] = [
+    { href: "/", label: "Home" },
+    { href: "/about", label: "About Us" },
+    { href: "/contact", label: "Contact" },
+  ];
+
+  const NavLink: React.FC<NavLinkProps> = ({ href, label, className = "" }) => (
+    <Link
+      href={href}
+      className={`transition duration-300 ease-in-out ${
+        pathname === href
+          ? "text-[#009CA6] font-semibold"
+          : "text-white hover:text-[#009CA6]"
+      } ${className}`}
+      onClick={() => setIsMenuOpen(false)}
+    >
+      {label}
+    </Link>
+  );
+
   return (
-    <header className="bg-gray-800 text-white">
-      <div className="container mx-auhref px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-[#009CA6]">
+    <header className="bg-gray-800 text-white shadow-md">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <Link
+          href="/"
+          className="text-2xl font-bold text-[#009CA6] hover:text-[#00b8c2] transition duration-300"
+        >
           CodeCompass
         </Link>
 
-        <nav className="hidden md:flex space-x-6">
-          <Link href="/" className="hover:text-[#009CA6]">
-            Home
-          </Link>
-
-          <Link href="/about" className="hover:text-[#009CA6]">
-            About Us
-          </Link>
-          <Link href="/contact" className="hover:text-[#009CA6]">
-            Contact
-          </Link>
+        <nav className="hidden md:flex space-x-6 items-center">
+          {navItems.map((item) => (
+            <NavLink key={item.href} href={item.href} label={item.label} />
+          ))}
           {user ? (
-            <Link
-              href={`/${user?.role}`}
-              className="hover:text-[#009CA6] bg-[#009CA6] px-4 py-2 rounded hover:bg-gray-500"
-            >
-              Dashboard
-            </Link>
+            <NavLink
+              href={`/${user.role}`}
+              label="Dashboard"
+              className="bg-[#009CA6] px-4 py-2 rounded hover:bg-[#00b8c2] text-white"
+            />
           ) : (
-            <Link
+            <NavLink
               href="/login"
-              className="hover:text-[#009CA6] bg-[#009CA6] px-4 py-2 rounded hover:bg-gray-500"
-            >
-              Login
-            </Link>
+              label="Login"
+              className="bg-[#009CA6] px-4 py-2 rounded hover:bg-[#00b8c2] text-white"
+            />
           )}
         </nav>
 
-        <div className="md:hidden flex items-center">
-          {isMenuOpen ? (
-            <AiOutlineClose size={30} onClick={hrefggleMenu} />
-          ) : (
-            <AiOutlineMenu size={30} onClick={hrefggleMenu} />
-          )}
+        <div className="md:hidden">
+          <button
+            onClick={toggleMenu}
+            className="text-white focus:outline-none focus:text-[#009CA6] transition duration-300"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {isMenuOpen ? (
+              <AiOutlineClose size={30} />
+            ) : (
+              <AiOutlineMenu size={30} />
+            )}
+          </button>
         </div>
       </div>
 
       {isMenuOpen && (
-        <div className="md:hidden bg-gray-700 py-4">
-          <nav className="flex flex-col items-center space-y-4">
-            <Link
-              href="/"
-              onClick={hrefggleMenu}
-              className="hover:text-[#009CA6]"
-            >
-              Home
-            </Link>
-
-            <Link
-              href="/about"
-              onClick={hrefggleMenu}
-              className="hover:text-[#009CA6]"
-            >
-              About Us
-            </Link>
-            <Link
-              href="/contact"
-              onClick={hrefggleMenu}
-              className="hover:text-[#009CA6]"
-            >
-              Contact
-            </Link>
-            <Link
-              href="/login"
-              onClick={hrefggleMenu}
-              className="hover:text-[#009CA6] bg-[#009CA6] px-4 py-2 rounded"
-            >
-              Login
-            </Link>
+        <div className="md:hidden bg-gray-700 py-4 px-4">
+          <nav className="flex flex-col space-y-4">
+            {navItems.map((item) => (
+              <NavLink key={item.href} href={item.href} label={item.label} />
+            ))}
+            {user ? (
+              <NavLink
+                href={`/${user.role}`}
+                label="Dashboard"
+                className="bg-[#009CA6] px-4 py-2 rounded hover:bg-[#00b8c2] text-white text-center"
+              />
+            ) : (
+              <NavLink
+                href="/login"
+                label="Login"
+                className="bg-[#009CA6] px-4 py-2 rounded hover:bg-[#00b8c2] text-white text-center"
+              />
+            )}
           </nav>
         </div>
       )}
