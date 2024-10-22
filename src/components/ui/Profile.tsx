@@ -20,7 +20,7 @@ const Profile = () => {
     },
     {
       label: "Tickets",
-      href: userData?.role === "admin" ? "/admin/tickets" : "/user/tickets",
+      href: "#",
       icon: (
         <TbHeartHandshake className="text-black-700  h-5 w-5 flex-shrink-0" />
       ),

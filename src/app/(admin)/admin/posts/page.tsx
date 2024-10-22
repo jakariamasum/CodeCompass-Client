@@ -10,6 +10,7 @@ import {
 import { PostList } from "@/components/ui/lists/posts.list";
 import { PostModal } from "@/components/ui/modals/post.create";
 import PostEditModal from "@/components/ui/modals/post.edit";
+import Pagination from "@/components/Pagination";
 
 const categories = [
   "Web Development",
@@ -41,7 +42,7 @@ const Post = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [postsPerPage] = useState(5);
+  const [postsPerPage] = useState(10);
   const [selectedPost, setSelectedPost] = useState<IPost | null>(null);
   const [tags, setTags] = useState<string[]>(["tech"]);
 
@@ -49,7 +50,7 @@ const Post = () => {
   const { mutate: handlePostCreate } = usePostCreation(postRefetch);
   const { mutate: handlePostUpdate } = usePostUpdate(postRefetch);
   const { mutate: handlePostDelete } = usePostDelete(postRefetch);
-
+  const totalPages = posts ? Math.ceil(posts?.length / postsPerPage) : 0;
   const handleEdit = (post: IPost) => {
     setSelectedPost(post);
     setEditShowModal(true);
@@ -89,22 +90,11 @@ const Post = () => {
         onDelete={handlePostDelete}
       />
 
-      <div className="mt-4">
-        <button
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage(currentPage - 1)}
-          className="bg-gray-300 px-4 py-2 rounded-lg mr-2"
-        >
-          Previous
-        </button>
-        <button
-          disabled={false}
-          onClick={() => setCurrentPage(currentPage + 1)}
-          className="bg-gray-300 px-4 py-2 rounded-lg"
-        >
-          Next
-        </button>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
 
       <PostModal
         showModal={showModal}

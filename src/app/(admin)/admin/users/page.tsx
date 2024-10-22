@@ -1,6 +1,16 @@
+"use client";
+import Pagination from "@/components/Pagination";
 import TableRow from "@/components/ui/admin/TableRow";
+import { useGetUsers } from "@/hooks/user.hook";
+import { IUser } from "@/types";
+import { useState } from "react";
 
 const UserManagement = () => {
+  const { data: users } = useGetUsers();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(10);
+  const userss = users?.filter((user: IUser) => user.role === "user") || [];
+  const totalPages = users ? Math.ceil(userss?.length / usersPerPage) : 0;
   return (
     <div className="bg-white p-4 rounded shadow mb-5">
       <div className="overflow-x-auto">
@@ -27,6 +37,11 @@ const UserManagement = () => {
           <TableRow role="user" />
         </table>
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };

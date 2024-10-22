@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
+import Pagination from "@/components/Pagination";
 import { useUser } from "@/context/user.provider";
 import { useUserPayments } from "@/hooks/payment.hook";
 import { IPayment } from "@/types";
@@ -23,6 +24,11 @@ export default function PaymentManagement() {
   const [sortField, setSortField] = useState<keyof IPayment>("_id");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [filter, setFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paymentPerPage] = useState(10);
+  const totalPages = payments
+    ? Math.ceil(payments?.length / paymentPerPage)
+    : 0;
 
   const sortedAndFilteredPayments = useMemo(() => {
     return payments
@@ -116,6 +122,11 @@ export default function PaymentManagement() {
           </div>
         </div>
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

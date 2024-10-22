@@ -114,7 +114,7 @@ export default function CommentSection({
               <textarea
                 id="comment"
                 rows={3}
-                className="shadow-sm focus:ring-[#009CA6] focus:border-[#009CA6] block w-full sm:text-sm border-gray-300 rounded-md"
+                className="shadow-md focus:ring-[#009CA6] focus:border-[#009CA6] block w-full sm:text-sm border border-gray-300 rounded-lg p-4 placeholder-gray-400 transition duration-150 ease-in-out hover:border-[#009CA6] focus:outline-none focus:ring-2 focus:ring-opacity-50"
                 placeholder="Write your comment here..."
                 {...register("content")}
               />
